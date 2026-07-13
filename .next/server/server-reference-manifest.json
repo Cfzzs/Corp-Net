@@ -1,0 +1,70 @@
+{
+  "node": {
+    "14d57012e84bf41cd92f34984833c301733930b9": {
+      "workers": {
+        "app/testes/page": "(rsc)/./node_modules/next/dist/build/webpack/loaders/next-flight-action-entry-loader.js?actions=%5B%5B%22C%3A%5C%5CUsers%5C%5CWay%20sat%5C%5C.gemini%5C%5Cantigravity-ide%5C%5Cscratch%5C%5Cfivem-management%5C%5Csrc%5C%5Capp%5C%5Ctestes%5C%5Cpage.tsx%22%2C%5B%22%24%24ACTION_1%22%2C%22%24%24ACTION_0%22%5D%5D%5D&__client_imported__=!"
+      },
+      "layer": {
+        "app/testes/page": "rsc"
+      }
+    },
+    "88f978ab3fafd6660103d0daa2211f740d0c45b3": {
+      "workers": {
+        "app/testes/page": "(rsc)/./node_modules/next/dist/build/webpack/loaders/next-flight-action-entry-loader.js?actions=%5B%5B%22C%3A%5C%5CUsers%5C%5CWay%20sat%5C%5C.gemini%5C%5Cantigravity-ide%5C%5Cscratch%5C%5Cfivem-management%5C%5Csrc%5C%5Capp%5C%5Ctestes%5C%5Cpage.tsx%22%2C%5B%22%24%24ACTION_1%22%2C%22%24%24ACTION_0%22%5D%5D%5D&__client_imported__=!"
+      },
+      "layer": {
+        "app/testes/page": "rsc"
+      }
+    },
+    "983c685f58d73497e975833da5e8faac67634586": {
+      "workers": {
+        "app/blacklist/page": "(rsc)/./node_modules/next/dist/build/webpack/loaders/next-flight-action-entry-loader.js?actions=%5B%5B%22C%3A%5C%5CUsers%5C%5CWay%20sat%5C%5C.gemini%5C%5Cantigravity-ide%5C%5Cscratch%5C%5Cfivem-management%5C%5Csrc%5C%5Capp%5C%5Cblacklist%5C%5Cpage.tsx%22%2C%5B%22%24%24ACTION_0%22%2C%22%24%24ACTION_1%22%5D%5D%5D&__client_imported__=!"
+      },
+      "layer": {
+        "app/blacklist/page": "rsc"
+      }
+    },
+    "bac281cf4e1217ef207ee866875bd169627df4f5": {
+      "workers": {
+        "app/blacklist/page": "(rsc)/./node_modules/next/dist/build/webpack/loaders/next-flight-action-entry-loader.js?actions=%5B%5B%22C%3A%5C%5CUsers%5C%5CWay%20sat%5C%5C.gemini%5C%5Cantigravity-ide%5C%5Cscratch%5C%5Cfivem-management%5C%5Csrc%5C%5Capp%5C%5Cblacklist%5C%5Cpage.tsx%22%2C%5B%22%24%24ACTION_0%22%2C%22%24%24ACTION_1%22%5D%5D%5D&__client_imported__=!"
+      },
+      "layer": {
+        "app/blacklist/page": "rsc"
+      }
+    },
+    "20c61fd004da0b3f7831a4750a942720544c0f3b": {
+      "workers": {
+        "app/membros/[id]/page": "(rsc)/./node_modules/next/dist/build/webpack/loaders/next-flight-action-entry-loader.js?actions=%5B%5B%22C%3A%5C%5CUsers%5C%5CWay%20sat%5C%5C.gemini%5C%5Cantigravity-ide%5C%5Cscratch%5C%5Cfivem-management%5C%5Csrc%5C%5Capp%5C%5Cmembros%5C%5C%5Bid%5D%5C%5Cpage.tsx%22%2C%5B%22%24%24ACTION_2%22%2C%22%24%24ACTION_3%22%2C%22%24%24ACTION_1%22%2C%22%24%24ACTION_0%22%5D%5D%5D&__client_imported__=!"
+      },
+      "layer": {
+        "app/membros/[id]/page": "rsc"
+      }
+    },
+    "2153632dbd68341fe4139b2bca76a94c0e889a15": {
+      "workers": {
+        "app/membros/[id]/page": "(rsc)/./node_modules/next/dist/build/webpack/loaders/next-flight-action-entry-loader.js?actions=%5B%5B%22C%3A%5C%5CUsers%5C%5CWay%20sat%5C%5C.gemini%5C%5Cantigravity-ide%5C%5Cscratch%5C%5Cfivem-management%5C%5Csrc%5C%5Capp%5C%5Cmembros%5C%5C%5Bid%5D%5C%5Cpage.tsx%22%2C%5B%22%24%24ACTION_2%22%2C%22%24%24ACTION_3%22%2C%22%24%24ACTION_1%22%2C%22%24%24ACTION_0%22%5D%5D%5D&__client_imported__=!"
+      },
+      "layer": {
+        "app/membros/[id]/page": "rsc"
+      }
+    },
+    "8c11b95a3eea54582d320eb11e215ee6e5997ea4": {
+      "workers": {
+        "app/membros/[id]/page": "(rsc)/./node_modules/next/dist/build/webpack/loaders/next-flight-action-entry-loader.js?actions=%5B%5B%22C%3A%5C%5CUsers%5C%5CWay%20sat%5C%5C.gemini%5C%5Cantigravity-ide%5C%5Cscratch%5C%5Cfivem-management%5C%5Csrc%5C%5Capp%5C%5Cmembros%5C%5C%5Bid%5D%5C%5Cpage.tsx%22%2C%5B%22%24%24ACTION_2%22%2C%22%24%24ACTION_3%22%2C%22%24%24ACTION_1%22%2C%22%24%24ACTION_0%22%5D%5D%5D&__client_imported__=!"
+      },
+      "layer": {
+        "app/membros/[id]/page": "rsc"
+      }
+    },
+    "cdd1ff2a46455e60e1b3ee41a35c9da68afe875f": {
+      "workers": {
+        "app/membros/[id]/page": "(rsc)/./node_modules/next/dist/build/webpack/loaders/next-flight-action-entry-loader.js?actions=%5B%5B%22C%3A%5C%5CUsers%5C%5CWay%20sat%5C%5C.gemini%5C%5Cantigravity-ide%5C%5Cscratch%5C%5Cfivem-management%5C%5Csrc%5C%5Capp%5C%5Cmembros%5C%5C%5Bid%5D%5C%5Cpage.tsx%22%2C%5B%22%24%24ACTION_2%22%2C%22%24%24ACTION_3%22%2C%22%24%24ACTION_1%22%2C%22%24%24ACTION_0%22%5D%5D%5D&__client_imported__=!"
+      },
+      "layer": {
+        "app/membros/[id]/page": "rsc"
+      }
+    }
+  },
+  "edge": {},
+  "encryptionKey": "FXWJwMXcT8x3T5XcmHr8UhzNGzY1qow6pGBhRYJww9Q="
+}

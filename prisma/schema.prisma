@@ -1,0 +1,71 @@
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+model User {
+  id            String       @id // Discord ID (Chave Primária)
+  name          String       // Discord Username (Nome de usuário do Discord)
+  email         String?      // Discord Email
+  image         String?      // Discord Avatar URL
+  icName        String?      // Nome In Character / Nome no Jogo
+  rank          String?      // Cargo Policial (ex: Agente Especial, Sargento, Delegado)
+  role          String       @default("MEMBRO")
+  status        String       @default("EM_TESTE")
+  probationEnd  DateTime?    // Fim do período de teste (se aplicável)
+
+  // Ocorrências / Observações recebidas por este membro
+  recordsReceived Record[]   @relation("RecordsReceived")
+  
+  // Registros inseridos por este usuário (líderes / supervisores / admins)
+  recordsCreated  Record[]   @relation("RecordsCreated")
+
+  // Entradas na blacklist criadas por este administrador
+  blacklistCreated Blacklist[] @relation("BlacklistCreated")
+
+  createdAt     DateTime     @default(now())
+  updatedAt     DateTime     @updatedAt
+}
+
+model Record {
+  id          String     @id @default(uuid())
+  type        String
+  description String
+  proofUrl    String?    // Link da Prova (Imgur, Medal, YouTube)
+  date        DateTime   @default(now()) // Data do ocorrido
+
+  // Relação com o membro que recebeu o registro
+  userId      String
+  user        User       @relation("RecordsReceived", fields: [userId], references: [id], onDelete: Cascade)
+
+  // Relação com quem criou o registro (Líder / Admin)
+  createdById String
+  createdBy   User       @relation("RecordsCreated", fields: [createdById], references: [id])
+
+  createdAt   DateTime   @default(now())
+  updatedAt   DateTime   @updatedAt
+
+  @@index([userId])
+  @@index([createdById])
+}
+
+model Blacklist {
+  id          String   @id @default(uuid())
+  discordId   String   @unique // Discord ID do jogador banido
+  icName      String   // Nome IC do jogador banido
+  reason      String
+  proofUrl    String?  // Link de Prova
+
+  // Relação com o Admin que realizou a inclusão na Blacklist
+  createdById String
+  createdBy   User     @relation("BlacklistCreated", fields: [createdById], references: [id])
+
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@index([createdById])
+}
