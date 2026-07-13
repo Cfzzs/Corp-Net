@@ -96,7 +96,7 @@ export const authOptions: NextAuthOptions = {
             token.role = dbUser.role as "DEV" | "MEMBRO" | "LIDER" | "ADMIN";
             token.rank = dbUser.rank;
             token.icName = dbUser.icName;
-            token.status = dbUser.status as "ATIVO" | "EM_TESTE" | "INATIVO" | "BANIDO";
+            token.status = dbUser.status as "ATIVO" | "EM_TESTE" | "DEMITIDO";
           }
         } catch (error) {
           console.error("[jwt] Erro ao buscar usuário:", token.id, error);
