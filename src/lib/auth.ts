@@ -93,10 +93,10 @@ export const authOptions: NextAuthOptions = {
           });
 
           if (dbUser) {
-            token.role = dbUser.role;
+            token.role = dbUser.role as "DEV" | "MEMBRO" | "LIDER" | "ADMIN";
             token.rank = dbUser.rank;
             token.icName = dbUser.icName;
-            token.status = dbUser.status;
+            token.status = dbUser.status as "ATIVO" | "EM_TESTE" | "INATIVO" | "BANIDO";
           }
         } catch (error) {
           console.error("[jwt] Erro ao buscar usuário:", token.id, error);
