@@ -1,8 +1,0 @@
-{
-  "/dashboard/page": "app/dashboard/page.js",
-  "/membros/[id]/page": "app/membros/[id]/page.js",
-  "/membros/page": "app/membros/page.js",
-  "/testes/page": "app/testes/page.js",
-  "/api/auth/[...nextauth]/route": "app/api/auth/[...nextauth]/route.js",
-  "/blacklist/page": "app/blacklist/page.js"
-}
