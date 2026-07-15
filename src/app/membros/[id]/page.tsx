@@ -191,7 +191,7 @@ export default async function MemberDetailPage({
     if (currentUserRole === "MEMBRO") return;
 
     // Proteção: perfis DEV nunca podem ser excluídos
-    const targetUser = await prisma.user.findUnique({ where: { id: targetId }, select: { role: true } });
+    const targetUser = await prisma.user.findUnique({ where: { id: targetId }, select: { role: true, icName: true } });
     if (!targetUser || targetUser.role === "DEV") return;
 
     // Remove registros vinculados que NÃO têm cascade automático no schema:
