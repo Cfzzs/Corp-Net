@@ -132,7 +132,7 @@ export default async function MemberDetailPage({
       // Dias RESTANTES configurados pelo admin
       const probationDaysStr = formData.get("probationDays") as string;
       const probationDays = parseInt(probationDaysStr) || 15;
-      data.probationDuration = Math.max(15, probationDays, member.probationDuration || 15);
+      data.probationDuration = Math.max(15, probationDays, member?.probationDuration || 15);
       data.probationEnd = new Date(Date.now() + probationDays * 24 * 60 * 60 * 1000);
     } else {
       data.probationEnd = null;
