@@ -17,12 +17,19 @@ model User {
   role          String       @default("MEMBRO")
   status        String       @default("EM_TESTE")
   probationEnd  DateTime?    // Fim do período de teste (se aplicável)
+  probationDuration Int?     @default(15) // Duração do período de teste em dias
 
   // Ocorrências / Observações recebidas por este membro
   recordsReceived Record[]   @relation("RecordsReceived")
   
   // Registros inseridos por este usuário (líderes / supervisores / admins)
   recordsCreated  Record[]   @relation("RecordsCreated")
+
+  // Logs de auditoria executados por este admin/lider
+  logsExecuted    AuditLog[] @relation("LogsExecuted")
+  
+  // Logs de auditoria sofridos por este usuário (ex: alteração na própria ficha)
+  logsTargeted    AuditLog[] @relation("LogsTargeted")
 
   // Entradas na blacklist criadas por este administrador
   blacklistCreated Blacklist[] @relation("BlacklistCreated")
@@ -68,4 +75,23 @@ model Blacklist {
   updatedAt   DateTime @updatedAt
 
   @@index([createdById])
+}
+
+model AuditLog {
+  id          String   @id @default(uuid())
+  action      String   // Tipo de ação: "UPDATE_PROFILE", "DELETE_PROFILE", "ADD_RECORD", "DELETE_RECORD", "ADD_BLACKLIST", "REMOVE_BLACKLIST"
+  details     String   // Descrição humana da ação
+  
+  // Quem executou a ação (Lider/Admin)
+  executorId  String
+  executor    User     @relation("LogsExecuted", fields: [executorId], references: [id])
+  
+  // Quem sofreu a ação (Opcional, pois pode ser um log geral ou deletado)
+  targetId    String?
+  target      User?    @relation("LogsTargeted", fields: [targetId], references: [id])
+
+  createdAt   DateTime @default(now())
+
+  @@index([executorId])
+  @@index([targetId])
 }

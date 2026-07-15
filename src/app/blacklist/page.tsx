@@ -62,6 +62,14 @@ export default async function BlacklistPage({
           createdById: session!.user.id,
         },
       });
+
+      await prisma.auditLog.create({
+        data: {
+          action: "ADD_BLACKLIST",
+          details: `Adicionou ${icName.trim()} (ID: ${discordId.trim()}) à Blacklist. Motivo: ${reason.trim()}`,
+          executorId: session!.user.id,
+        },
+      });
     } catch (error) {
       console.error("Erro ao inserir na Blacklist:", error);
     }
@@ -77,8 +85,16 @@ export default async function BlacklistPage({
     if (currentUserRole !== "ADMIN" && currentUserRole !== "DEV") return;
 
     try {
-      await prisma.blacklist.delete({
+      const deletedEntry = await prisma.blacklist.delete({
         where: { id: blacklistId },
+      });
+
+      await prisma.auditLog.create({
+        data: {
+          action: "REMOVE_BLACKLIST",
+          details: `Removeu ${deletedEntry.icName} (ID: ${deletedEntry.discordId}) da Blacklist.`,
+          executorId: session!.user.id,
+        },
       });
     } catch (error) {
       console.error("Erro ao deletar da Blacklist:", error);

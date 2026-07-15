@@ -79,8 +79,9 @@ export default async function MemberDetailPage({
   if (member.status === "EM_TESTE" && member.probationEnd) {
     const timeDiff = new Date(member.probationEnd).getTime() - Date.now();
     daysRemaining = Math.max(0, Math.ceil(timeDiff / (1000 * 60 * 60 * 24)));
-    // Período de teste padrão de 15 dias
-    probationProgress = Math.min(100, Math.max(0, ((15 - daysRemaining) / 15) * 100));
+    // Período de teste padrão de 15 dias, mas se houver duração personalizada salva, usamos ela
+    const probationDuration = member.probationDuration || 15;
+    probationProgress = Math.min(100, Math.max(0, ((probationDuration - daysRemaining) / probationDuration) * 100));
   }
 
   // SERVER ACTION: Adicionar Ocorrência
@@ -92,13 +93,22 @@ export default async function MemberDetailPage({
 
     if (!type || !description.trim()) return;
 
-    await prisma.record.create({
+    const newRecord = await prisma.record.create({
       data: {
         type,
         description: description.trim(),
         proofUrl: proofUrl.trim() || null,
         userId: params.id,
         createdById: session!.user.id,
+      },
+    });
+
+    await prisma.auditLog.create({
+      data: {
+        action: "ADD_RECORD",
+        details: `Aplicou uma ocorrência do tipo ${type.replace("_", " ")} ao membro.`,
+        executorId: session!.user.id,
+        targetId: params.id,
       },
     });
 
@@ -119,8 +129,11 @@ export default async function MemberDetailPage({
     const data: any = { role, status, rank: rank.trim() || null };
 
     if (status === "EM_TESTE") {
-      // 15 dias de período de teste padrão configurado conforme feedback do usuário
-      data.probationEnd = new Date(Date.now() + 15 * 24 * 60 * 60 * 1000);
+      // Dias RESTANTES configurados pelo admin
+      const probationDaysStr = formData.get("probationDays") as string;
+      const probationDays = parseInt(probationDaysStr) || 15;
+      data.probationDuration = Math.max(15, probationDays, member.probationDuration || 15);
+      data.probationEnd = new Date(Date.now() + probationDays * 24 * 60 * 60 * 1000);
     } else {
       data.probationEnd = null;
     }
@@ -128,6 +141,16 @@ export default async function MemberDetailPage({
     await prisma.user.update({
       where: { id: params.id },
       data,
+    });
+
+    const detalhes = `Atualizou dados da ficha: Cargo=${role}, Status=${status}, Patente=${data.rank || "N/A"}${status === "EM_TESTE" ? `, Teste=${data.probationDuration} dias` : ""}`;
+    await prisma.auditLog.create({
+      data: {
+        action: "UPDATE_PROFILE",
+        details: detalhes,
+        executorId: session!.user.id,
+        targetId: params.id,
+      },
     });
 
     revalidatePath(`/membros/${params.id}`);
@@ -141,8 +164,17 @@ export default async function MemberDetailPage({
 
     if (currentUserRole !== "ADMIN" && currentUserRole !== "DEV") return;
 
-    await prisma.record.delete({
+    const deletedRecord = await prisma.record.delete({
       where: { id: recordId },
+    });
+
+    await prisma.auditLog.create({
+      data: {
+        action: "DELETE_RECORD",
+        details: `Removeu a ocorrência do tipo ${deletedRecord.type} (ID: ${deletedRecord.id}) deste membro.`,
+        executorId: session!.user.id,
+        targetId: params.id,
+      },
     });
 
     revalidatePath(`/membros/${params.id}`);
@@ -169,6 +201,14 @@ export default async function MemberDetailPage({
     await prisma.blacklist.deleteMany({ where: { createdById: targetId } });
     // 3. Deleta o usuário — RecordsReceived têm cascade automático no schema
     await prisma.user.delete({ where: { id: targetId } });
+
+    await prisma.auditLog.create({
+      data: {
+        action: "DELETE_PROFILE",
+        details: `Excluiu permanentemente a ficha do agente: ${targetUser.icName || targetId}.`,
+        executorId: session!.user.id,
+      },
+    });
 
     redirect("/membros");
   }
@@ -294,7 +334,7 @@ export default async function MemberDetailPage({
               {member.status === "EM_TESTE" ? (
                 <>
                   <p className="text-xs text-gray-400 font-sans leading-relaxed mb-6">
-                    Acompanhamento do período probatório do recruta. (Padrão: 15 dias).
+                    Acompanhamento do período probatório do recruta. (Padrão: {member.probationDuration || 15} dias).
                   </p>
                   
                   <div className="space-y-2">
@@ -303,7 +343,7 @@ export default async function MemberDetailPage({
                     </div>
                     <div className="flex justify-between font-mono text-[9px] text-gray-500 uppercase">
                       <span>Dia 1</span>
-                      <span>Dia 15</span>
+                      <span>Dia {member.probationDuration || 15}</span>
                     </div>
                   </div>
                 </>
@@ -441,9 +481,21 @@ export default async function MemberDetailPage({
                   <label className="text-gray-400 uppercase tracking-wider">Status Corporativo</label>
                   <select name="status" defaultValue={member.status} className="w-full bg-tactical-dark border border-white/10 focus:border-primary/50 text-white rounded-xl px-3 py-2.5 focus:outline-none transition">
                     <option value="ATIVO">ATIVO</option>
-                    <option value="EM_TESTE">EM PERÍODO TESTE (15 dias)</option>
+                    <option value="EM_TESTE">EM PERÍODO TESTE (Personalizável)</option>
                     <option value="DEMITIDO">DEMITIDO (BLOQUEIA ACESSO)</option>
                   </select>
+                </div>
+
+                <div className="space-y-1">
+                  <label className="text-gray-400 uppercase tracking-wider">Dias Restantes de Teste</label>
+                  <input
+                    type="number"
+                    name="probationDays"
+                    defaultValue={daysRemaining || 15}
+                    min="1"
+                    className="w-full bg-tactical-dark border border-white/10 focus:border-primary/50 text-white rounded-xl px-3 py-2.5 focus:outline-none transition"
+                  />
+                  <p className="text-[10px] text-gray-500 mt-1">Este valor só será aplicado se o status for "EM PERÍODO TESTE".</p>
                 </div>
 
                 <button type="submit" className="w-full bg-white/5 hover:bg-white/10 text-white border border-white/10 font-bold py-2.5 px-4 rounded-xl flex items-center justify-center gap-2 transition uppercase">

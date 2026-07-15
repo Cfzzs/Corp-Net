@@ -23,14 +23,17 @@ export default function LoginPage() {
 
   return (
     <div className="flex min-h-screen flex-col items-center justify-center bg-background px-4 py-12 relative overflow-hidden font-sans">
+      {/* Background Image (prs base) */}
+      <div className="absolute inset-0 bg-[url('/base-prs.png')] bg-cover bg-center opacity-30 pointer-events-none"></div>
+
       {/* Background grids and tactical effects */}
-      <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_center,_var(--tw-gradient-stops))] from-yellow-500/5 via-transparent to-transparent pointer-events-none"></div>
-      <div className="absolute inset-0 bg-[linear-gradient(rgba(255,255,255,0.01)_1px,_transparent_1px),_linear-gradient(90deg,_rgba(255,255,255,0.01)_1px,_transparent_1px)] bg-[size:30px_30px] pointer-events-none"></div>
+      <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_center,_rgba(10,19,51,0.5),_var(--tw-gradient-stops))] from-blue-900/40 via-background/90 to-background pointer-events-none"></div>
+      <div className="absolute inset-0 bg-[linear-gradient(rgba(255,255,255,0.015)_1px,_transparent_1px),_linear-gradient(90deg,_rgba(255,255,255,0.015)_1px,_transparent_1px)] bg-[size:30px_30px] pointer-events-none"></div>
       
       {/* Radar scanning decoration */}
-      <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] border border-yellow-500/5 rounded-full pointer-events-none radar-glow flex items-center justify-center">
-        <div className="w-[400px] h-[400px] border border-yellow-500/5 rounded-full flex items-center justify-center">
-          <div className="w-[200px] h-[200px] border border-yellow-500/5 rounded-full"></div>
+      <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] border border-blue-500/10 rounded-full pointer-events-none radar-glow flex items-center justify-center">
+        <div className="w-[400px] h-[400px] border border-blue-500/10 rounded-full flex items-center justify-center">
+          <div className="w-[200px] h-[200px] border border-blue-500/10 rounded-full"></div>
         </div>
       </div>
 
@@ -44,7 +47,7 @@ export default function LoginPage() {
             CORP<span className="text-primary font-bold">//</span>NET
           </h1>
           <p className="text-gray-400 text-xs mt-1 uppercase tracking-widest font-mono">
-            Portal de Gestão Militar e Corporativa
+            Polícia Rodoviária Street (PRS)
           </p>
         </div>
 

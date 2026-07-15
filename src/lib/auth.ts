@@ -5,10 +5,10 @@ import { prisma } from "@/lib/prisma";
 export const authOptions: NextAuthOptions = {
   providers: [
     DiscordProvider({
-      clientId: process.env.DISCORD_CLIENT_ID!,
-      clientSecret: process.env.DISCORD_CLIENT_SECRET!,
+      clientId: process.env.DISCORD_CLIENT_ID || "dummy",
+      clientSecret: process.env.DISCORD_CLIENT_SECRET || "dummy",
       authorization: { params: { scope: "identify email" } },
-    }),
+    })
   ],
   session: {
     strategy: "jwt",
@@ -17,12 +17,13 @@ export const authOptions: NextAuthOptions = {
   },
   callbacks: {
     async signIn({ user, account, profile }) {
-      if (!account || !profile) return false;
+      if (!account) return false;
+      if (account.provider === "discord" && !profile) return false;
 
       // Valida que o Discord ID é um número válido (evita IDs inválidos)
-      const discordId = String((profile as any).id || "");
+      const discordId = String((profile as any)?.id || account.providerAccountId);
       if (!discordId || !/^\d+$/.test(discordId)) {
-        console.error("[signIn] Discord ID inválido:", discordId);
+        console.error("[signIn] ID inválido:", discordId);
         return false;
       }
 
@@ -36,12 +37,13 @@ export const authOptions: NextAuthOptions = {
           await prisma.user.create({
             data: {
               id: discordId,
-              name: (profile as any).username || user.name || "Membro Discord",
-              email: (profile as any).email || user.email,
-              image: (profile as any).image_url || user.image || `https://cdn.discordapp.com/embed/avatars/0.png`,
+              name: (profile as any)?.username || user.name || "Membro Discord",
+              email: (profile as any)?.email || user.email,
+              image: (profile as any)?.image_url || user.image || `https://cdn.discordapp.com/embed/avatars/0.png`,
               role: "MEMBRO",
               status: "EM_TESTE",
               probationEnd: new Date(Date.now() + 15 * 24 * 60 * 60 * 1000),
+              probationDuration: 15,
             },
           });
         } else {
@@ -52,9 +54,9 @@ export const authOptions: NextAuthOptions = {
             await prisma.user.update({
               where: { id: discordId },
               data: {
-                name: (profile as any).username || user.name || dbUser.name,
-                image: (profile as any).image_url || user.image || dbUser.image,
-                email: (profile as any).email || user.email || dbUser.email,
+                name: (profile as any)?.username || user.name || dbUser.name,
+                image: (profile as any)?.image_url || user.image || dbUser.image,
+                email: (profile as any)?.email || user.email || dbUser.email,
               },
             });
           }
@@ -68,9 +70,8 @@ export const authOptions: NextAuthOptions = {
     },
 
     async jwt({ token, account }) {
-      // Na primeira chamada do JWT (login OAuth), account está disponível
-      // Definimos o token.id com o Discord Snowflake ID
-      if (account?.provider === "discord" && account.providerAccountId) {
+      // Na primeira chamada do JWT, account está disponível
+      if (account?.providerAccountId) {
         token.id = String(account.providerAccountId);
       }
 

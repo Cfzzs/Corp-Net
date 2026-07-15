@@ -67,8 +67,9 @@ export default async function DashboardPage() {
   if (user.status === "EM_TESTE" && user.probationEnd) {
     const timeDiff = new Date(user.probationEnd).getTime() - Date.now();
     daysRemaining = Math.max(0, Math.ceil(timeDiff / (1000 * 60 * 60 * 24)));
-    // Período de teste padrão de 15 dias
-    probationProgress = Math.min(100, Math.max(0, ((15 - daysRemaining) / 15) * 100));
+    // Período de teste padrão de 15 dias, mas se houver duração personalizada salva, usamos ela
+    const probationDuration = user.probationDuration || 15;
+    probationProgress = Math.min(100, Math.max(0, ((probationDuration - daysRemaining) / probationDuration) * 100));
   }
 
   const getRecordTypeBadge = (type: string) => {
@@ -279,7 +280,7 @@ export default async function DashboardPage() {
               {user.status === "EM_TESTE" ? (
                 <>
                   <p className="text-xs text-gray-400 font-sans leading-relaxed mb-6">
-                    Acompanhamento do período probatório do recruta. O período total regulamentar é de 15 dias.
+                    Acompanhamento do período probatório do recruta. O período total regulamentar é de {user.probationDuration || 15} dias.
                   </p>
                   
                   <div className="space-y-2">
@@ -291,7 +292,7 @@ export default async function DashboardPage() {
                     </div>
                     <div className="flex justify-between font-mono text-[9px] text-gray-500 uppercase">
                       <span>Dia 1</span>
-                      <span>Dia 15</span>
+                      <span>Dia {user.probationDuration || 15}</span>
                     </div>
                   </div>
                 </>

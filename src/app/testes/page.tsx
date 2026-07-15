@@ -70,7 +70,7 @@ export default async function ProbationPage() {
     <LayoutWrapper title="RECRUTAMENTO // PERÍODOS DE TESTE">
       <div className="space-y-6 max-w-6xl">
         <p className="text-xs font-mono text-gray-400 uppercase tracking-widest border-b border-white/5 pb-3">
-          Acompanhamento de período probatório e efetivação (Ciclo de 15 dias)
+          Acompanhamento de período probatório e efetivação
         </p>
 
         {recruits.length === 0 ? (
@@ -86,8 +86,9 @@ export default async function ProbationPage() {
               if (recruit.probationEnd) {
                 const timeDiff = new Date(recruit.probationEnd).getTime() - Date.now();
                 daysRemaining = Math.max(0, Math.ceil(timeDiff / (1000 * 60 * 60 * 24)));
-                // Ciclo regulamentar padrão de 15 dias
-                progressPercent = Math.min(100, Math.max(0, ((15 - daysRemaining) / 15) * 100));
+                // Ciclo regulamentar padrão de 15 dias ou personalizado
+                const probationDuration = recruit.probationDuration || 15;
+                progressPercent = Math.min(100, Math.max(0, ((probationDuration - daysRemaining) / probationDuration) * 100));
               }
 
               return (

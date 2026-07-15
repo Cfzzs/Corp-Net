@@ -13,7 +13,8 @@ import {
   LogOut,
   User,
   Terminal,
-  ShieldCheck
+  ShieldCheck,
+  FileClock
 } from "lucide-react";
 
 export function LayoutWrapper({ children, title }: { children: React.ReactNode; title: string }) {
@@ -36,6 +37,7 @@ export function LayoutWrapper({ children, title }: { children: React.ReactNode; 
     { name: "Membros", href: "/membros", icon: Users, roles: ["LIDER", "ADMIN", "DEV"] },
     { name: "Em Teste", href: "/testes", icon: Clock, roles: ["LIDER", "ADMIN", "DEV"] },
     { name: "Lista Negra", href: "/blacklist", icon: Skull, roles: ["MEMBRO", "LIDER", "ADMIN", "DEV"] },
+    { name: "Auditoria", href: "/logs", icon: FileClock, roles: ["LIDER", "ADMIN", "DEV"] },
   ];
 
   const getRoleBadgeColor = (role: string) => {
@@ -65,9 +67,16 @@ export function LayoutWrapper({ children, title }: { children: React.ReactNode; 
   };
 
   return (
-    <div className="flex min-h-screen bg-background font-sans">
+    <div className="flex min-h-screen bg-background font-sans relative overflow-hidden">
+      {/* Background Image (prs base) */}
+      <div className="absolute inset-0 bg-[url('/base-prs.png')] bg-cover bg-center opacity-20 pointer-events-none"></div>
+
+      {/* Background grids and tactical effects */}
+      <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_center,_rgba(10,19,51,0.3),_var(--tw-gradient-stops))] from-blue-900/30 via-background/95 to-background pointer-events-none"></div>
+      <div className="absolute inset-0 bg-[linear-gradient(rgba(255,255,255,0.015)_1px,_transparent_1px),_linear-gradient(90deg,_rgba(255,255,255,0.015)_1px,_transparent_1px)] bg-[size:30px_30px] pointer-events-none"></div>
+
       {/* SIDEBAR */}
-      <aside className="w-64 border-r border-white/5 bg-tactical-dark flex flex-col shrink-0">
+      <aside className="w-64 border-r border-white/5 bg-tactical-dark/90 backdrop-blur-md flex flex-col shrink-0 z-10 relative">
         {/* LOGO */}
         <div className="h-16 border-b border-white/5 flex items-center px-6 gap-3">
           <Shield className="w-5 h-5 text-primary shadow-tactical-glow" />
@@ -150,7 +159,7 @@ export function LayoutWrapper({ children, title }: { children: React.ReactNode; 
       </aside>
 
       {/* MAIN CONTAINER */}
-      <div className="flex-1 flex flex-col min-w-0">
+      <div className="flex-1 flex flex-col min-w-0 z-10 relative">
         {/* HEADER BAR */}
         <header className="h-16 border-b border-white/5 px-8 flex items-center justify-between bg-black/20 shrink-0">
           <div className="flex items-center gap-2">

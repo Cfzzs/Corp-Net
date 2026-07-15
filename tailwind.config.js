@@ -8,11 +8,11 @@ module.exports = {
   theme: {
     extend: {
       colors: {
-        background: "#080B11",
-        card: "rgba(17, 24, 39, 0.7)",
+        background: "#0A1333", // Azul escuro inspirado no teto da base
+        card: "rgba(16, 29, 73, 0.8)", // Azul royal para os cards
         primary: {
-          DEFAULT: "#FFB800", // Tactical Amber
-          hover: "#E0A200",
+          DEFAULT: "#FFD500", // Amarelo bem vivo igual às paredes da base
+          hover: "#E6C000",
         },
         success: {
           DEFAULT: "#10B981", // Tactical Green
@@ -23,11 +23,11 @@ module.exports = {
           hover: "#DC2626",
         },
         tactical: {
-          dark: "#0F131D",
-          border: "rgba(255, 184, 0, 0.15)",
+          dark: "#0C173D", // Fundo interno ainda mais escuro do azul da base
+          border: "rgba(255, 213, 0, 0.3)",
           borderGreen: "rgba(16, 185, 129, 0.15)",
           borderRed: "rgba(239, 68, 68, 0.15)",
-          glow: "rgba(255, 184, 0, 0.05)",
+          glow: "rgba(255, 213, 0, 0.15)",
         }
       },
       backgroundImage: {
@@ -35,7 +35,7 @@ module.exports = {
         "gradient-conic": "conic-gradient(from 180deg at 50% 50%, var(--tw-gradient-stops))",
       },
       boxShadow: {
-        "tactical-glow": "0 0 15px rgba(255, 184, 0, 0.1)",
+        "tactical-glow": "0 0 15px rgba(255, 213, 0, 0.2)",
         "tactical-glow-green": "0 0 15px rgba(16, 185, 129, 0.1)",
         "tactical-glow-red": "0 0 15px rgba(239, 68, 68, 0.15)",
       }
