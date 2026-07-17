@@ -33,11 +33,11 @@ export function LayoutWrapper({ children, title }: { children: React.ReactNode; 
   const isDev = userRole === "DEV";
 
   const navigation = [
-    { name: "Meu Perfil", href: "/dashboard", icon: LayoutDashboard, roles: ["MEMBRO", "LIDER", "ADMIN", "DEV"] },
-    { name: "Membros", href: "/membros", icon: Users, roles: ["LIDER", "ADMIN", "DEV"] },
-    { name: "Em Teste", href: "/testes", icon: Clock, roles: ["LIDER", "ADMIN", "DEV"] },
-    { name: "Lista Negra", href: "/blacklist", icon: Skull, roles: ["MEMBRO", "LIDER", "ADMIN", "DEV"] },
-    { name: "Auditoria", href: "/logs", icon: FileClock, roles: ["LIDER", "ADMIN", "DEV"] },
+    { name: "Meu Perfil", href: "/dashboard", icon: LayoutDashboard, roles: ["MEMBRO", "LIDER", "ADMIN", "DEV", "STAFF"] },
+    { name: "Membros", href: "/membros", icon: Users, roles: ["LIDER", "ADMIN", "DEV", "STAFF"] },
+    { name: "Em Teste", href: "/testes", icon: Clock, roles: ["LIDER", "ADMIN", "DEV", "STAFF"] },
+    { name: "Lista Negra", href: "/blacklist", icon: Skull, roles: ["MEMBRO", "LIDER", "ADMIN", "DEV", "STAFF"] },
+    { name: "Auditoria", href: "/logs", icon: FileClock, roles: ["LIDER", "ADMIN", "DEV", "STAFF"] },
   ];
 
   const getRoleBadgeColor = (role: string) => {
@@ -48,6 +48,8 @@ export function LayoutWrapper({ children, title }: { children: React.ReactNode; 
         return "bg-red-500/10 text-red-500 border-red-500/20";
       case "LIDER":
         return "bg-amber-500/10 text-amber-500 border-amber-500/20";
+      case "STAFF":
+        return "bg-cyan-500/10 text-cyan-400 border-cyan-500/20";
       default:
         return "bg-blue-500/10 text-blue-400 border-blue-500/20";
     }
@@ -146,8 +148,25 @@ export function LayoutWrapper({ children, title }: { children: React.ReactNode; 
           })}
         </nav>
 
-        {/* FOOTER / LOGOUT */}
-        <div className="p-4 border-t border-white/5 bg-black/10">
+        {/* FOOTER / CREDITS / LOGOUT */}
+        <div className="p-4 border-t border-white/5 bg-black/10 space-y-4">
+          <div className="flex flex-col items-center justify-center space-y-1 py-2 border-b border-white/5">
+            <span className="text-[9px] text-gray-500 font-mono uppercase tracking-widest">
+              Desenvolvido por
+            </span>
+            <a 
+              href="https://discord.gg/weMksGmu" 
+              target="_blank" 
+              rel="noopener noreferrer" 
+              className="text-xs font-mono font-bold text-primary hover:text-white transition-colors uppercase"
+            >
+              Eduardo
+            </a>
+            <span className="text-[10px] text-gray-400 font-sans">
+              Kodo Soft
+            </span>
+          </div>
+
           <button
             onClick={() => signOut({ callbackUrl: "/login" })}
             className="w-full flex items-center justify-center gap-2 px-3 py-2.5 rounded-xl font-mono text-xs text-danger hover:bg-danger/10 border border-transparent hover:border-danger/25 transition duration-150"

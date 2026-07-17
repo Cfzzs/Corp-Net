@@ -23,7 +23,7 @@ export default async function LogsPage({
   }
 
   const currentUserRole = session.user.role;
-  const isAuthorized = currentUserRole === "LIDER" || currentUserRole === "ADMIN" || currentUserRole === "DEV";
+  const isAuthorized = currentUserRole === "LIDER" || currentUserRole === "ADMIN" || currentUserRole === "DEV" || currentUserRole === "STAFF";
 
   if (!isAuthorized) {
     redirect("/dashboard");

@@ -32,6 +32,8 @@ export default async function ProbationPage() {
     const userId = formData.get("userId") as string;
 
     if (!userId) return;
+    if (session?.user?.role === "STAFF") return;
+
 
     await prisma.user.update({
       where: { id: userId },
@@ -52,6 +54,8 @@ export default async function ProbationPage() {
     const userId = formData.get("userId") as string;
 
     if (!userId) return;
+    if (session?.user?.role === "STAFF") return;
+
 
     await prisma.user.update({
       where: { id: userId },
@@ -148,6 +152,7 @@ export default async function ProbationPage() {
                   </div>
 
                   {/* ACTION CONTROLS */}
+                  {session.user.role !== "STAFF" && (
                   <div className="grid grid-cols-2 gap-3 pt-4 border-t border-white/5">
                     {/* BUTTON PROMOTES */}
                     <form action={promoteRecruitAction}>
@@ -173,6 +178,7 @@ export default async function ProbationPage() {
                       </button>
                     </form>
                   </div>
+                  )}
                 </div>
               );
             })}

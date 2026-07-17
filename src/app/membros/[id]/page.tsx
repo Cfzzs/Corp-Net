@@ -92,6 +92,8 @@ export default async function MemberDetailPage({
     const proofUrl = formData.get("proofUrl") as string;
 
     if (!type || !description.trim()) return;
+    if (session?.user?.role === "STAFF") return;
+
 
     const newRecord = await prisma.record.create({
       data: {
@@ -120,11 +122,14 @@ export default async function MemberDetailPage({
   // SERVER ACTION: Atualizar Cargo/Status
   async function updateMemberSettingsAction(formData: FormData) {
     "use server";
-    const role = formData.get("role") as "MEMBRO" | "LIDER" | "ADMIN";
+    const role = formData.get("role") as "MEMBRO" | "LIDER" | "ADMIN" | "STAFF";
     const status = formData.get("status") as "ATIVO" | "EM_TESTE" | "DEMITIDO";
     const rank = formData.get("rank") as string;
 
     if (!role || !status) return;
+    if (session?.user?.role === "STAFF") return;
+    if (role === "STAFF" && session?.user?.role !== "DEV") return;
+
 
     const data: any = { role, status, rank: rank.trim() || null };
 
@@ -188,7 +193,7 @@ export default async function MemberDetailPage({
     const targetId = formData.get("targetId") as string;
 
     // Só LIDER ou superior pode excluir
-    if (currentUserRole === "MEMBRO") return;
+    if (currentUserRole === "MEMBRO" || currentUserRole === "STAFF") return;
 
     // Proteção: perfis DEV nunca podem ser excluídos
     const targetUser = await prisma.user.findUnique({ where: { id: targetId }, select: { role: true, icName: true } });
@@ -416,9 +421,10 @@ export default async function MemberDetailPage({
           </div>
 
           {/* COLUNA DIREITA: FORMULÁRIOS DE CONTROLE */}
-          <div className="space-y-6">
-            {/* ADICIONAR OCORRÊNCIA */}
-            <div className="tactical-card rounded-2xl p-6">
+          {currentUserRole !== "STAFF" && (
+            <div className="space-y-6">
+              {/* ADICIONAR OCORRÊNCIA */}
+              <div className="tactical-card rounded-2xl p-6">
               <h3 className="font-mono text-sm font-bold text-white uppercase border-b border-white/5 pb-3 mb-4 flex items-center gap-2">
                 <PlusCircle className="w-4 h-4 text-primary" /> LANÇAR AVALIAÇÃO
               </h3>
@@ -463,6 +469,7 @@ export default async function MemberDetailPage({
                     <option value="MEMBRO">MEMBRO</option>
                     <option value="LIDER">LÍDER / SUPERVISOR</option>
                     <option value="ADMIN">ADMIN / COMANDO</option>
+                    {currentUserRole === "DEV" && <option value="STAFF">STAFF</option>}
                   </select>
                 </div>
 
@@ -513,6 +520,7 @@ export default async function MemberDetailPage({
               />
             )}
           </div>
+          )}
         </div>
 
       </div>

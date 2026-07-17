@@ -1,5 +1,6 @@
 import { NextAuthOptions } from "next-auth";
 import DiscordProvider from "next-auth/providers/discord";
+import CredentialsProvider from "next-auth/providers/credentials";
 import { prisma } from "@/lib/prisma";
 
 export const authOptions: NextAuthOptions = {
@@ -8,6 +9,52 @@ export const authOptions: NextAuthOptions = {
       clientId: process.env.DISCORD_CLIENT_ID || "dummy",
       clientSecret: process.env.DISCORD_CLIENT_SECRET || "dummy",
       authorization: { params: { scope: "identify email" } },
+    }),
+    CredentialsProvider({
+      id: "test-login",
+      name: "Test Login",
+      credentials: {
+        username: { label: "Username", type: "text" },
+      },
+      async authorize(credentials) {
+        const username = credentials?.username?.toLowerCase();
+        
+        if (["staff", "admin", "lider", "dev", "membro"].includes(username || "")) {
+          const roleMapping: Record<string, string> = {
+            "staff": "STAFF",
+            "admin": "ADMIN",
+            "lider": "LIDER",
+            "dev": "DEV",
+            "membro": "MEMBRO"
+          };
+          
+          const role = roleMapping[username!];
+          const testId = `9999999999999999${Object.keys(roleMapping).indexOf(username!)}`;
+          
+          let dbUser = await prisma.user.findUnique({ where: { id: testId } });
+          
+          if (!dbUser) {
+            dbUser = await prisma.user.create({
+              data: {
+                id: testId,
+                name: `${role} Test`,
+                icName: `${role} Test IC`,
+                email: `${role.toLowerCase()}@test.com`,
+                image: `https://cdn.discordapp.com/embed/avatars/${Object.keys(roleMapping).indexOf(username!)}.png`,
+                role: role,
+                status: "ATIVO",
+              }
+            });
+          }
+          
+          return {
+            id: dbUser.id,
+            name: dbUser.name,
+            email: dbUser.email,
+          };
+        }
+        return null;
+      }
     })
   ],
   session: {
@@ -18,6 +65,7 @@ export const authOptions: NextAuthOptions = {
   callbacks: {
     async signIn({ user, account, profile }) {
       if (!account) return false;
+      if (account.provider === "test-login") return true;
       if (account.provider === "discord" && !profile) return false;
 
       // Valida que o Discord ID é um número válido (evita IDs inválidos)
@@ -69,9 +117,11 @@ export const authOptions: NextAuthOptions = {
       }
     },
 
-    async jwt({ token, account }) {
+    async jwt({ token, account, user }) {
       // Na primeira chamada do JWT, account está disponível
-      if (account?.providerAccountId) {
+      if (account?.provider === "test-login" && user) {
+        token.id = user.id;
+      } else if (account?.providerAccountId) {
         token.id = String(account.providerAccountId);
       }
 
@@ -94,7 +144,7 @@ export const authOptions: NextAuthOptions = {
           });
 
           if (dbUser) {
-            token.role = dbUser.role as "DEV" | "MEMBRO" | "LIDER" | "ADMIN";
+            token.role = dbUser.role as "DEV" | "MEMBRO" | "LIDER" | "ADMIN" | "STAFF";
             token.rank = dbUser.rank;
             token.icName = dbUser.icName;
             token.status = dbUser.status as "ATIVO" | "EM_TESTE" | "DEMITIDO";

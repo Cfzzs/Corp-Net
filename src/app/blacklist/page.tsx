@@ -51,6 +51,7 @@ export default async function BlacklistPage({
     const proofUrl = formData.get("proofUrl") as string;
 
     if (!discordId || !icName || !reason) return;
+    if (currentUserRole !== "ADMIN" && currentUserRole !== "DEV") return;
 
     try {
       await prisma.blacklist.create({

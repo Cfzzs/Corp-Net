@@ -103,9 +103,18 @@ export default function LoginPage() {
         </div>
 
         {/* Footer */}
-        <p className="text-center text-xs text-gray-500 font-mono mt-8 uppercase tracking-wider">
-          ESTA ESTAÇÃO ESTÁ MONITORADA // SECURE HANDSHAKE V2
-        </p>
+        <div className="text-center mt-8 space-y-2">
+          <p className="text-xs text-gray-500 font-mono uppercase tracking-wider">
+            ESTA ESTAÇÃO ESTÁ MONITORADA // SECURE HANDSHAKE V2
+          </p>
+          <p className="text-[10px] text-gray-600 font-mono">
+            Desenvolvido por{" "}
+            <a href="https://discord.gg/weMksGmu" target="_blank" rel="noopener noreferrer" className="text-primary hover:text-white transition-colors font-bold">
+              Eduardo
+            </a>
+            {" "}— <span className="text-gray-400">Kodo Soft</span>
+          </p>
+        </div>
       </div>
     </div>
   );
