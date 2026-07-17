@@ -14,7 +14,8 @@ import {
   User,
   Terminal,
   ShieldCheck,
-  FileClock
+  FileClock,
+  Siren
 } from "lucide-react";
 
 export function LayoutWrapper({ children, title }: { children: React.ReactNode; title: string }) {
@@ -36,6 +37,7 @@ export function LayoutWrapper({ children, title }: { children: React.ReactNode; 
     { name: "Meu Perfil", href: "/dashboard", icon: LayoutDashboard, roles: ["MEMBRO", "LIDER", "ADMIN", "DEV", "STAFF"] },
     { name: "Membros", href: "/membros", icon: Users, roles: ["LIDER", "ADMIN", "DEV", "STAFF"] },
     { name: "Em Teste", href: "/testes", icon: Clock, roles: ["LIDER", "ADMIN", "DEV", "STAFF"] },
+    { name: "Apreensões", href: "/apreensoes", icon: Siren, roles: ["MEMBRO", "LIDER", "ADMIN", "DEV", "STAFF"] },
     { name: "Lista Negra", href: "/blacklist", icon: Skull, roles: ["MEMBRO", "LIDER", "ADMIN", "DEV", "STAFF"] },
     { name: "Auditoria", href: "/logs", icon: FileClock, roles: ["LIDER", "ADMIN", "DEV", "STAFF"] },
   ];

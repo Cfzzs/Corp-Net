@@ -43,5 +43,6 @@ export const config = {
     "/blacklist/:path*",
     "/cadastro",
     "/admin/:path*",
+    "/apreensoes",
   ],
 };
