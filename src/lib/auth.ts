@@ -51,6 +51,10 @@ export const authOptions: NextAuthOptions = {
             id: dbUser.id,
             name: dbUser.name,
             email: dbUser.email,
+            role: dbUser.role as any,
+            rank: dbUser.rank,
+            icName: dbUser.icName,
+            status: dbUser.status as any,
           };
         }
         return null;
