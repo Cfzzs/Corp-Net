@@ -59,7 +59,7 @@ export async function POST(request: NextRequest) {
     }
 
     const embedPayload = {
-      content: envolvidosMentions ? `<@&1528818555653456082> ${envolvidosMentions}` : "<@&1528818555653456082>",
+      content: envolvidosMentions ? `<@&1341103708519403522> ${envolvidosMentions}` : "<@&1341103708519403522>",
       embeds: [
         {
           title: "🚨 REGISTRO DE APREENSÃO - PRS",
