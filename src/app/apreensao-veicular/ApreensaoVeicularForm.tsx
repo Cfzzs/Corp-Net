@@ -35,7 +35,6 @@ export default function ApreensaoVeicularForm({ userId, userName, userIcName }: 
   const [formData, setFormData] = useState({
     imagemUrl: "",
     proprietario: "",
-    placa: "",
     modelo: "",
     cor: "",
     artigos: [] as string[],
@@ -91,7 +90,6 @@ export default function ApreensaoVeicularForm({ userId, userName, userIcName }: 
       const body = new FormData();
       body.append("imagemUrl", formData.imagemUrl);
       body.append("proprietario", formData.proprietario);
-      body.append("placa", formData.placa);
       body.append("modelo", formData.modelo);
       body.append("cor", formData.cor);
       body.append("artigos", JSON.stringify(formData.artigos));
@@ -114,7 +112,6 @@ export default function ApreensaoVeicularForm({ userId, userName, userIcName }: 
       setFormData({
         imagemUrl: "",
         proprietario: "",
-        placa: "",
         modelo: "",
         cor: "",
         artigos: [],
@@ -226,21 +223,7 @@ export default function ApreensaoVeicularForm({ userId, userName, userIcName }: 
             />
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-            <div className="space-y-2">
-              <label className="text-xs font-mono text-gray-400 uppercase tracking-wider">
-                Placa
-              </label>
-              <input
-                type="text"
-                name="placa"
-                value={formData.placa}
-                onChange={handleInputChange}
-                placeholder="ABC-1234"
-                className="w-full bg-tactical-dark border border-white/10 rounded-xl px-4 py-3 text-white font-mono text-sm focus:border-primary focus:ring-1 focus:ring-primary outline-none transition placeholder:text-gray-600 uppercase"
-              />
-            </div>
-
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div className="space-y-2">
               <label className="text-xs font-mono text-gray-400 uppercase tracking-wider">
                 Modelo
