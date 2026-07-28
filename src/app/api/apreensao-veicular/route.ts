@@ -4,16 +4,19 @@ import { prisma } from "@/lib/prisma";
 export const dynamic = 'force-dynamic';
 
 const ARTIGOS = [
-  { id: "art_175", descricao: "Art. 175 - Apreensão de Veículo", valor: 500 },
-  { id: "art_176", descricao: "Art. 176 - Veículo em Condições Irregulares", valor: 750 },
-  { id: "art_177", descricao: "Art. 177 - Documentação Irregular", valor: 300 },
-  { id: "art_178", descricao: "Art. 178 - Excesso de Velocidade", valor: 400 },
-  { id: "art_179", descricao: "Art. 179 - Infração de Trânsito Grave", valor: 1000 },
-  { id: "art_180", descricao: "Art. 180 - Resistência à Apreensão", valor: 1500 },
-  { id: "art_181", descricao: "Art. 181 - Veículo Furtado/Robado", valor: 2000 },
-  { id: "art_182", descricao: "Art. 182 - Modificação Ilegal", valor: 600 },
-  { id: "art_183", descricao: "Art. 183 - Uso de Placa Ilegal", valor: 800 },
-  { id: "art_184", descricao: "Art. 184 - Embriaguez ao Volante", valor: 1200 },
+  { id: "art_39", descricao: "Art. 39º - Condução Imprudente", valor: 10000 },
+  { id: "art_40", descricao: "Art. 40º - Veículo Gravemente Avariado", valor: 10000 },
+  { id: "art_41", descricao: "Art. 41º - Abandono de Veículo", valor: 5000 },
+  { id: "art_42", descricao: "Art. 42º - Crime Contra o Patrimônio Público", valor: 10000 },
+  { id: "art_43", descricao: "Art. 43º - Promover Corridas Ilegais", valor: 10000 },
+  { id: "art_44", descricao: "Art. 44º - Conduzir Sem Capacete", valor: 10000 },
+  { id: "art_45", descricao: "Art. 45º - Conduzir Veículo Sem Documento Obrigatório", valor: 50000 },
+  { id: "art_46", descricao: "Art. 46º - Conduzir Sem Habilitação", valor: 15000 },
+  { id: "art_47", descricao: "Art. 47º - Desobedecer Ordem de Parada", valor: 30000 },
+  { id: "art_48", descricao: "Art. 48º - Incitar Acompanhamento", valor: 10000 },
+  { id: "art_49", descricao: "Art. 49º - Conduzir Veículo na Contra Mão", valor: 15000 },
+  { id: "art_50", descricao: "Art. 50º - Poluição Sonora Automotiva", valor: 5000 },
+  { id: "art_51", descricao: "Art. 51º - Alteração de Característica", valor: 30000 },
 ];
 
 export async function POST(request: NextRequest) {
