@@ -99,6 +99,7 @@ model AuditLog {
 model VehicleInfraction {
   id            String   @id @default(uuid())
   proprietario  String
+  placa         String?
   modelo        String?
   cor           String?
   imagemUrl     String?
@@ -113,5 +114,7 @@ model VehicleInfraction {
   createdAt     DateTime @default(now())
 
   @@index([proprietario])
+  @@index([placa])
+  @@index([modelo])
   @@index([agenteId])
 }

@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import {
   Car,
   Image,
@@ -10,6 +10,9 @@ import {
   AlertCircle,
   DollarSign,
   ClipboardList,
+  AlertTriangle,
+  History,
+  X,
 } from "lucide-react";
 
 const ARTIGOS = [
@@ -38,6 +41,7 @@ export default function ApreensaoVeicularForm({ userId, userName, userIcName }: 
   const [formData, setFormData] = useState({
     imagemUrl: "",
     proprietario: "",
+    placa: "",
     modelo: "",
     cor: "",
     artigos: [] as string[],
@@ -48,6 +52,12 @@ export default function ApreensaoVeicularForm({ userId, userName, userIcName }: 
   const [submitStatus, setSubmitStatus] = useState<"idle" | "success" | "error">("idle");
   const [errorMessage, setErrorMessage] = useState("");
 
+  const [historicoLoading, setHistoricoLoading] = useState(false);
+  const [historicoVeiculo, setHistoricoVeiculo] = useState<any[]>([]);
+  const [showHistorico, setShowHistorico] = useState(false);
+  const debounceRef = useRef<NodeJS.Timeout | null>(null);
+  const historicoRef = useRef<HTMLDivElement>(null);
+
   const valorTotal = ARTIGOS
     .filter((a) => formData.artigos.includes(a.id))
     .reduce((sum, a) => sum + a.valor, 0);
@@ -55,7 +65,52 @@ export default function ApreensaoVeicularForm({ userId, userName, userIcName }: 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     const { name, value } = e.target;
     setFormData((prev) => ({ ...prev, [name]: value }));
+
+    if (name === "placa" || name === "modelo") {
+      if (debounceRef.current) clearTimeout(debounceRef.current);
+      debounceRef.current = setTimeout(() => {
+        checkHistorico(value, name);
+      }, 600);
+    }
   };
+
+  const checkHistorico = async (valor: string, campo: string) => {
+    if (valor.length < 3) {
+      setHistoricoVeiculo([]);
+      setShowHistorico(false);
+      return;
+    }
+
+    setHistoricoLoading(true);
+    try {
+      const response = await fetch(`/api/historico?tipo=veiculo&q=${encodeURIComponent(valor)}`);
+      const data = await response.json();
+      const infractions = data.results?.flatMap((r: any) => r.infractions) || [];
+      setHistoricoVeiculo(infractions);
+      setShowHistorico(infractions.length > 0);
+    } catch {
+      setHistoricoVeiculo([]);
+      setShowHistorico(false);
+    } finally {
+      setHistoricoLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (historicoRef.current && !historicoRef.current.contains(event.target as Node)) {
+        setShowHistorico(false);
+      }
+    };
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, []);
+
+  useEffect(() => {
+    return () => {
+      if (debounceRef.current) clearTimeout(debounceRef.current);
+    };
+  }, []);
 
   const handleArtigoToggle = (artigoId: string) => {
     setFormData((prev) => {
@@ -93,6 +148,7 @@ export default function ApreensaoVeicularForm({ userId, userName, userIcName }: 
       const body = new FormData();
       body.append("imagemUrl", formData.imagemUrl);
       body.append("proprietario", formData.proprietario);
+      body.append("placa", formData.placa);
       body.append("modelo", formData.modelo);
       body.append("cor", formData.cor);
       body.append("artigos", JSON.stringify(formData.artigos));
@@ -115,11 +171,14 @@ export default function ApreensaoVeicularForm({ userId, userName, userIcName }: 
       setFormData({
         imagemUrl: "",
         proprietario: "",
+        placa: "",
         modelo: "",
         cor: "",
         artigos: [],
         observacoes: "",
       });
+      setHistoricoVeiculo([]);
+      setShowHistorico(false);
 
       setTimeout(() => setSubmitStatus("idle"), 5000);
     } catch (error) {
@@ -132,7 +191,6 @@ export default function ApreensaoVeicularForm({ userId, userName, userIcName }: 
 
   return (
     <div className="space-y-6">
-      {/* Header */}
       <div className="tactical-card rounded-2xl p-6 border-l-4 border-l-primary">
         <div className="flex items-center gap-3 mb-2">
           <Car className="w-6 h-6 text-primary" />
@@ -145,7 +203,6 @@ export default function ApreensaoVeicularForm({ userId, userName, userIcName }: 
         </p>
       </div>
 
-      {/* Success */}
       {submitStatus === "success" && (
         <div className="bg-emerald-500/10 border border-emerald-500/30 rounded-xl p-4 flex items-center gap-3">
           <Check className="w-5 h-5 text-emerald-500" />
@@ -153,7 +210,6 @@ export default function ApreensaoVeicularForm({ userId, userName, userIcName }: 
         </div>
       )}
 
-      {/* Error */}
       {submitStatus === "error" && (
         <div className="bg-red-500/10 border border-red-500/30 rounded-xl p-4 flex items-center gap-3">
           <AlertCircle className="w-5 h-5 text-red-500" />
@@ -202,7 +258,7 @@ export default function ApreensaoVeicularForm({ userId, userName, userIcName }: 
         </div>
 
         {/* Dados do Veículo */}
-        <div className="tactical-card rounded-2xl p-6 space-y-4">
+        <div className="tactical-card rounded-2xl p-6 space-y-4 relative" ref={historicoRef}>
           <div className="flex items-center gap-2 mb-2">
             <Car className="w-5 h-5 text-primary" />
             <h3 className="text-sm font-bold text-white font-mono uppercase tracking-wider">
@@ -226,7 +282,21 @@ export default function ApreensaoVeicularForm({ userId, userName, userIcName }: 
             />
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+            <div className="space-y-2">
+              <label className="text-xs font-mono text-gray-400 uppercase tracking-wider">
+                Placa
+              </label>
+              <input
+                type="text"
+                name="placa"
+                value={formData.placa}
+                onChange={handleInputChange}
+                placeholder="ABC-1234"
+                className="w-full bg-tactical-dark border border-white/10 rounded-xl px-4 py-3 text-white font-mono text-sm focus:border-primary focus:ring-1 focus:ring-primary outline-none transition placeholder:text-gray-600 uppercase"
+              />
+            </div>
+
             <div className="space-y-2">
               <label className="text-xs font-mono text-gray-400 uppercase tracking-wider">
                 Modelo
@@ -269,6 +339,57 @@ export default function ApreensaoVeicularForm({ userId, userName, userIcName }: 
               className="w-full bg-white/5 border border-white/5 rounded-xl px-4 py-3 text-gray-400 font-mono text-sm cursor-not-allowed"
             />
           </div>
+
+          {/* Historico do veículo */}
+          {historicoLoading && (
+            <div className="flex items-center gap-2 text-xs text-gray-500 font-mono">
+              <div className="w-3 h-3 border-2 border-gray-500/30 border-t-gray-500 rounded-full animate-spin" />
+              Verificando histórico...
+            </div>
+          )}
+
+          {showHistorico && !historicoLoading && (
+            <div className="p-4 bg-red-500/5 border border-red-500/20 rounded-xl">
+              <div className="flex items-start gap-3">
+                <AlertTriangle className="w-5 h-5 text-red-500 mt-0.5 shrink-0" />
+                <div className="flex-1 min-w-0">
+                  <div className="flex items-center justify-between gap-2 mb-2">
+                    <p className="text-xs font-mono text-red-400 uppercase font-bold">
+                      VEÍCULO COM PASSAGEM
+                    </p>
+                    <span className="text-[10px] font-mono text-red-500 bg-red-500/10 border border-red-500/20 px-1.5 py-0.5 rounded">
+                      {historicoVeiculo.length} infração(ões)
+                    </span>
+                  </div>
+                  <div className="space-y-1.5 max-h-32 overflow-y-auto">
+                    {historicoVeiculo.slice(0, 5).map((inf: any) => (
+                      <div key={inf.id} className="flex items-center justify-between text-[11px] border-b border-red-500/10 pb-1 last:border-0">
+                        <div>
+                          <span className="text-gray-300 font-mono">
+                            {inf.modelo && `${inf.modelo} `}
+                            {inf.cor && `(${inf.cor})`}
+                          </span>
+                          {inf.agenteIcName && (
+                            <span className="text-gray-600 ml-2">por {inf.agenteIcName}</span>
+                          )}
+                        </div>
+                        <span className="text-red-400 font-mono font-bold">
+                          R$ {inf.valorTotal.toLocaleString("pt-BR")}
+                        </span>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+                <button
+                  type="button"
+                  onClick={() => setShowHistorico(false)}
+                  className="text-gray-500 hover:text-white transition shrink-0"
+                >
+                  <X className="w-3.5 h-3.5" />
+                </button>
+              </div>
+            </div>
+          )}
         </div>
 
         {/* Artigos */}
@@ -310,21 +431,20 @@ export default function ApreensaoVeicularForm({ userId, userName, userIcName }: 
                     <span className="text-xs">{artigo.descricao}</span>
                   </div>
                   <span className={`text-xs font-bold ${isSelected ? "text-primary" : "text-gray-500"}`}>
-                    R$ {artigo.valor.toLocaleString('pt-BR')}
+                    R$ {artigo.valor.toLocaleString("pt-BR")}
                   </span>
                 </button>
               );
             })}
           </div>
 
-          {/* Valor Total */}
           <div className="flex items-center justify-between p-4 bg-primary/5 border border-primary/20 rounded-xl mt-4">
             <div className="flex items-center gap-2">
               <DollarSign className="w-5 h-5 text-primary" />
               <span className="text-sm font-mono text-white uppercase tracking-wider">Valor Total</span>
             </div>
             <span className="text-xl font-mono font-bold text-primary">
-              R$ {valorTotal.toLocaleString('pt-BR')}
+              R$ {valorTotal.toLocaleString("pt-BR")}
             </span>
           </div>
         </div>
@@ -347,7 +467,6 @@ export default function ApreensaoVeicularForm({ userId, userName, userIcName }: 
           />
         </div>
 
-        {/* Submit */}
         <button
           type="submit"
           disabled={isSubmitting}

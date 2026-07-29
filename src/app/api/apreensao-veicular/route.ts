@@ -25,6 +25,7 @@ export async function POST(request: NextRequest) {
 
     const imagemUrl = formData.get("imagemUrl") as string;
     const proprietario = formData.get("proprietario") as string;
+    const placa = formData.get("placa") as string;
     const modelo = formData.get("modelo") as string;
     const cor = formData.get("cor") as string;
     const artigosSelecionados = formData.get("artigos") as string;
@@ -83,6 +84,11 @@ export async function POST(request: NextRequest) {
             {
               name: "👤 Proprietário",
               value: proprietario,
+              inline: true
+            },
+            {
+              name: "🇵​🇱​🇦​🇨​🇦​ Placa",
+              value: placa || "Não informada",
               inline: true
             },
             {
@@ -151,6 +157,7 @@ export async function POST(request: NextRequest) {
       await prisma.vehicleInfraction.create({
         data: {
           proprietario,
+          placa: placa || null,
           modelo: modelo || null,
           cor: cor || null,
           imagemUrl: imagemUrl || null,
@@ -167,7 +174,7 @@ export async function POST(request: NextRequest) {
       await prisma.auditLog.create({
         data: {
           action: "ADD_APREENSAO_VEICULAR",
-          details: `Apreensão veicular - Proprietário: ${proprietario}. Modelo: ${modelo || "N/A"}. Artigos: ${artigosDetalhes}. Valor Total: R$${valorTotal.toLocaleString('pt-BR')}.`,
+          details: `Apreensão veicular - Proprietário: ${proprietario}. Placa: ${placa || "N/A"}. Modelo: ${modelo || "N/A"}. Artigos: ${artigosDetalhes}. Valor Total: R$${valorTotal.toLocaleString('pt-BR')}.`,
           executorId: agenteId,
         },
       });

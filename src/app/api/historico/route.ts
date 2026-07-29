@@ -82,6 +82,7 @@ export async function GET(request: NextRequest) {
         OR: [
           { proprietario: { contains: q } },
           { modelo: { contains: q } },
+          { placa: { contains: q } },
         ],
       },
       orderBy: { createdAt: "desc" },
@@ -101,6 +102,7 @@ export async function GET(request: NextRequest) {
         proprietario,
         infractions: (infs as any[]).map((i: any) => ({
           id: i.id,
+          placa: i.placa,
           modelo: i.modelo,
           cor: i.cor,
           artigosTexto: i.artigosTexto,
