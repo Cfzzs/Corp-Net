@@ -79,7 +79,7 @@ model Blacklist {
 
 model AuditLog {
   id          String   @id @default(uuid())
-  action      String   // Tipo de ação: "UPDATE_PROFILE", "DELETE_PROFILE", "ADD_RECORD", "DELETE_RECORD", "ADD_BLACKLIST", "REMOVE_BLACKLIST"
+  action      String   // Tipo de ação: "UPDATE_PROFILE", "DELETE_PROFILE", "ADD_RECORD", "DELETE_RECORD", "ADD_BLACKLIST", "REMOVE_BLACKLIST", "ADD_APREENSAO", "ADD_APREENSAO_VEICULAR"
   details     String   // Descrição humana da ação
   
   // Quem executou a ação (Lider/Admin)
@@ -94,4 +94,24 @@ model AuditLog {
 
   @@index([executorId])
   @@index([targetId])
+}
+
+model VehicleInfraction {
+  id            String   @id @default(uuid())
+  proprietario  String
+  modelo        String?
+  cor           String?
+  imagemUrl     String?
+  artigos       String   // JSON com IDs dos artigos
+  artigosTexto  String   // Descrição legível dos artigos
+  valorTotal    Int
+  observacoes   String?
+  agenteId      String
+  agenteNome    String
+  agenteIcName  String
+
+  createdAt     DateTime @default(now())
+
+  @@index([proprietario])
+  @@index([agenteId])
 }

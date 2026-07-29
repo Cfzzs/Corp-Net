@@ -146,6 +146,24 @@ export async function POST(request: NextRequest) {
 
     try {
       const artigosDetalhes = artigosComValor.map(a => a.descricao).join(", ");
+      const artigosTextoCurto = artigosComValor.map(a => a.descricao).join(", ");
+      
+      await prisma.vehicleInfraction.create({
+        data: {
+          proprietario,
+          modelo: modelo || null,
+          cor: cor || null,
+          imagemUrl: imagemUrl || null,
+          artigos: JSON.stringify(artigos),
+          artigosTexto: artigosTextoCurto,
+          valorTotal,
+          observacoes: observacoes || null,
+          agenteId,
+          agenteNome,
+          agenteIcName,
+        },
+      });
+
       await prisma.auditLog.create({
         data: {
           action: "ADD_APREENSAO_VEICULAR",
