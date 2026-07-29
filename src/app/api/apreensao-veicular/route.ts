@@ -171,6 +171,23 @@ export async function POST(request: NextRequest) {
         },
       });
 
+      // Criar passagem criminal para o proprietário se ele existir no sistema
+      if (proprietario) {
+        const owner = await prisma.user.findFirst({
+          where: { icName: { equals: proprietario, mode: "insensitive" } },
+        });
+        if (owner) {
+          await prisma.record.create({
+            data: {
+              type: "ADVERTENCIA_GRAVE",
+              description: `Apreensão veicular - Placa: ${placa || "N/A"} | Modelo: ${modelo || "N/A"} | Artigos: ${artigosDetalhes} | Valor total: R$${valorTotal.toLocaleString('pt-BR')}${observacoes ? ` | Obs: ${observacoes}` : ""}`.substring(0, 500),
+              userId: owner.id,
+              createdById: agenteId,
+            },
+          });
+        }
+      }
+
       await prisma.auditLog.create({
         data: {
           action: "ADD_APREENSAO_VEICULAR",

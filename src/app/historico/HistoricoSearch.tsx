@@ -24,6 +24,9 @@ export default function HistoricoSearch() {
 
   useEffect(() => {
     if (searchRef.current) searchRef.current.focus();
+    setResults([]);
+    setSearched(false);
+    setQuery("");
   }, [tipo]);
 
   const handleSearch = async () => {
