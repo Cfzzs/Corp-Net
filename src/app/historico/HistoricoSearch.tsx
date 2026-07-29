@@ -24,10 +24,14 @@ export default function HistoricoSearch() {
 
   useEffect(() => {
     if (searchRef.current) searchRef.current.focus();
+  }, [tipo]);
+
+  const handleTipoChange = (novoTipo: "pessoa" | "veiculo") => {
     setResults([]);
     setSearched(false);
     setQuery("");
-  }, [tipo]);
+    setTipo(novoTipo);
+  };
 
   const handleSearch = async () => {
     if (query.length < 2) return;
@@ -86,7 +90,7 @@ export default function HistoricoSearch() {
         {/* Tab Buttons */}
         <div className="flex gap-2 mb-6">
           <button
-            onClick={() => setTipo("pessoa")}
+            onClick={() => handleTipoChange("pessoa")}
             className={`flex items-center gap-2 px-5 py-2.5 rounded-xl font-mono text-xs uppercase tracking-wider border transition ${
               tipo === "pessoa"
                 ? "bg-primary/10 text-primary border-primary/30 shadow-tactical-glow"
@@ -97,7 +101,7 @@ export default function HistoricoSearch() {
             Pessoas
           </button>
           <button
-            onClick={() => setTipo("veiculo")}
+            onClick={() => handleTipoChange("veiculo")}
             className={`flex items-center gap-2 px-5 py-2.5 rounded-xl font-mono text-xs uppercase tracking-wider border transition ${
               tipo === "veiculo"
                 ? "bg-primary/10 text-primary border-primary/30 shadow-tactical-glow"
