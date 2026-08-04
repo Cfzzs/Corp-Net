@@ -89,7 +89,6 @@ export default async function LogsPage({
       case "REMOVE_BLACKLIST": return "REMOÇÃO BLACKLIST";
       case "ADD_APREENSAO": return "APREENSÃO DE DROGAS";
       case "ADD_APREENSAO_VEICULAR": return "APREENSÃO VEICULAR";
-      case "ADD_PRESO": return "REGISTRO DE PRISÃO";
       default: return action;
     }
   };

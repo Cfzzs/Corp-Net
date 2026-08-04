@@ -12,11 +12,10 @@ import {
   DollarSign,
   ShieldAlert,
   ScrollText,
-  UserX,
 } from "lucide-react";
 
 export default function HistoricoSearch() {
-  const [tipo, setTipo] = useState<"pessoa" | "veiculo" | "preso">("pessoa");
+  const [tipo, setTipo] = useState<"pessoa" | "veiculo">("pessoa");
   const [query, setQuery] = useState("");
   const [results, setResults] = useState<any[]>([]);
   const [loading, setLoading] = useState(false);
@@ -27,7 +26,7 @@ export default function HistoricoSearch() {
     if (searchRef.current) searchRef.current.focus();
   }, [tipo]);
 
-  const handleTipoChange = (novoTipo: "pessoa" | "veiculo" | "preso") => {
+  const handleTipoChange = (novoTipo: "pessoa" | "veiculo") => {
     setResults([]);
     setSearched(false);
     setQuery("");
@@ -60,7 +59,6 @@ export default function HistoricoSearch() {
       OBSERVACAO: "Observação",
       ADVERTENCIA_LEVE: "Advertência Leve",
       ADVERTENCIA_GRAVE: "Advertência Grave",
-      PRISAO: "Prisão",
     };
     return labels[type] || type;
   };
@@ -71,7 +69,6 @@ export default function HistoricoSearch() {
       case "OBSERVACAO": return "text-blue-300 border-blue-400/40 bg-blue-400/15";
       case "ADVERTENCIA_LEVE": return "text-yellow-300 border-yellow-400/40 bg-yellow-400/15";
       case "ADVERTENCIA_GRAVE": return "text-red-300 border-red-400/40 bg-red-400/15";
-      case "PRISAO": return "text-red-300 border-red-400/40 bg-red-400/15";
       default: return "text-gray-300 border-white/20 bg-white/10";
     }
   };
@@ -114,17 +111,6 @@ export default function HistoricoSearch() {
             <Car className="w-4 h-4" />
             Veículos
           </button>
-          <button
-            onClick={() => handleTipoChange("preso")}
-            className={`flex items-center gap-2 px-5 py-2.5 rounded-xl font-mono text-xs uppercase tracking-wider border transition ${
-              tipo === "preso"
-                ? "bg-primary/10 text-primary border-primary/30 shadow-tactical-glow"
-                : "text-gray-400 border-white/10 hover:text-white hover:border-white/20"
-            }`}
-          >
-            <UserX className="w-4 h-4" />
-            Prisões
-          </button>
         </div>
 
         {/* Search */}
@@ -135,7 +121,7 @@ export default function HistoricoSearch() {
             value={query}
             onChange={(e) => setQuery(e.target.value)}
             onKeyDown={handleKeyDown}
-            placeholder={tipo === "pessoa" ? "Buscar por nome IC ou Discord..." : tipo === "veiculo" ? "Buscar por proprietário ou modelo do veículo..." : "Buscar por nome do detido ou motivo..."}
+            placeholder={tipo === "pessoa" ? "Buscar por nome IC ou Discord..." : "Buscar por proprietário ou modelo do veículo..."}
             className="flex-1 bg-tactical-dark border border-white/10 rounded-xl px-4 py-3 text-white font-mono text-sm focus:border-primary focus:ring-1 focus:ring-primary outline-none transition placeholder:text-gray-500"
           />
           <button
@@ -322,63 +308,6 @@ export default function HistoricoSearch() {
                 {inf.agenteIcName && (
                   <p className="text-[10px] text-gray-400 font-mono">
                     Registrado por: {inf.agenteIcName}
-                  </p>
-                )}
-              </div>
-            ))}
-          </div>
-        </div>
-      ))}
-      {!loading && searched && tipo === "preso" && results.map((prisao: any) => (
-        <div key={prisao.nome} className="tactical-card rounded-2xl overflow-hidden border border-white/5">
-          {/* Header */}
-          <div className="p-6 border-b border-white/5 flex items-center justify-between">
-            <div className="flex items-center gap-4">
-              <div className="w-12 h-12 rounded-full bg-red-500/10 border border-red-500/30 flex items-center justify-center">
-                <UserX className="w-5 h-5 text-red-500" />
-              </div>
-              <div>
-                <h3 className="text-white font-mono font-bold text-sm">{prisao.nome}</h3>
-                <p className="text-gray-400 font-mono text-[11px]">{prisao.totalPrisoes} prisão(ões) registrada(s)</p>
-              </div>
-            </div>
-            <span className="text-[10px] font-mono text-red-300 bg-red-500/15 border border-red-500/30 px-2 py-0.5 rounded uppercase font-bold">
-              DETIDO
-            </span>
-          </div>
-
-          {/* Prisões */}
-          <div className="p-6 space-y-3">
-            <p className="text-[11px] text-gray-400 font-mono uppercase tracking-wider flex items-center gap-2">
-              <AlertTriangle className="w-3.5 h-3.5" />
-              Registros de Prisão
-            </p>
-            {prisao.prisões.map((p: any) => (
-              <div key={p.id} className="bg-white/5 rounded-xl p-4 space-y-2">
-                <div className="flex items-center justify-between">
-                  <span className="text-xs font-mono text-white font-bold flex items-center gap-2">
-                    <ShieldAlert className="w-4 h-4 text-red-400" />
-                    {p.motivo}
-                  </span>
-                  <div className="flex items-center gap-2 text-[10px] text-gray-400 font-mono">
-                    <Calendar className="w-3 h-3" />
-                    {new Date(p.data).toLocaleDateString("pt-BR")}
-                  </div>
-                </div>
-                {p.imagemUrl && (
-                  <img
-                    src={p.imagemUrl}
-                    alt="Detido"
-                    className="w-full h-32 object-cover rounded-lg border border-white/5"
-                    onError={(e) => { (e.target as HTMLImageElement).style.display = "none"; }}
-                  />
-                )}
-                {p.observacoes && (
-                  <p className="text-[11px] text-gray-200 font-mono">{p.observacoes}</p>
-                )}
-                {p.agenteIcName && (
-                  <p className="text-[10px] text-gray-400 font-mono">
-                    Registrado por: {p.agenteIcName}
                   </p>
                 )}
               </div>
