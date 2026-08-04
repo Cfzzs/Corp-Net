@@ -119,5 +119,40 @@ export async function GET(request: NextRequest) {
     return NextResponse.json({ results });
   }
 
+  if (tipo === "preso") {
+    const prisoners = await prisma.prisoner.findMany({
+      where: {
+        OR: [
+          { nome: { contains: q, mode: "insensitive" } },
+          { motivo: { contains: q, mode: "insensitive" } },
+        ],
+      },
+      orderBy: { createdAt: "desc" },
+      take: 100,
+    });
+
+    const grouped = prisoners.reduce((acc: any, p: any) => {
+      const key = p.nome;
+      if (!acc[key]) acc[key] = [];
+      acc[key].push(p);
+      return acc;
+    }, {});
+
+    const results = Object.entries(grouped).map(([nome, pris]: [string, any]) => ({
+      nome,
+      prisões: (pris as any[]).map((p: any) => ({
+        id: p.id,
+        motivo: p.motivo,
+        observacoes: p.observacoes,
+        imagemUrl: p.imagemUrl,
+        agenteIcName: p.agenteIcName,
+        data: p.createdAt,
+      })),
+      totalPrisoes: (pris as any[]).length,
+    }));
+
+    return NextResponse.json({ results });
+  }
+
   return NextResponse.json({ results: [] });
 }

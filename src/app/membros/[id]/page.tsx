@@ -224,6 +224,7 @@ export default async function MemberDetailPage({
       case "OBSERVACAO": return "bg-blue-500/10 text-blue-400 border-blue-500/20";
       case "ADVERTENCIA_LEVE": return "bg-amber-500/10 text-amber-500 border-amber-500/20";
       case "ADVERTENCIA_GRAVE": return "bg-red-500/10 text-red-500 border-red-500/20";
+      case "PRISAO": return "bg-red-500/10 text-red-400 border-red-500/30";
       default: return "bg-gray-500/10 text-gray-500 border-gray-500/20";
     }
   };
