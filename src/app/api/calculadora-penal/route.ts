@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
+import { prisma } from "@/lib/prisma";
 
 export const dynamic = 'force-dynamic';
 
@@ -65,6 +66,7 @@ export async function POST(request: NextRequest) {
     const resumo = formData.get("resumo") as string;
     const nomePreso = formData.get("nomePreso") as string;
     const imagemUrl = formData.get("imagemUrl") as string;
+    const agenteId = formData.get("agenteId") as string;
     const agenteNome = formData.get("agenteNome") as string;
     const agenteIcName = formData.get("agenteIcName") as string;
     const pena = formData.get("pena") as string;
@@ -138,6 +140,49 @@ export async function POST(request: NextRequest) {
         { error: "Erro ao enviar notificação para Discord" },
         { status: 500 }
       );
+    }
+
+    // Registrar a prisão no banco para aparecer no histórico
+    try {
+      await prisma.prisonRecord.create({
+        data: {
+          nome: nomePreso || "Não informado",
+          resumo,
+          pena: pena || null,
+          multa: multa || null,
+          imagemUrl: imagemUrl || null,
+          agenteId,
+          agenteNome,
+          agenteIcName,
+        },
+      });
+
+      // Criar passagem criminal para o detido se ele existir no sistema
+      if (nomePreso) {
+        const citizen = await prisma.user.findFirst({
+          where: { icName: { equals: nomePreso, mode: "insensitive" } },
+        });
+        if (citizen) {
+          await prisma.record.create({
+            data: {
+              type: "PRISAO",
+              description: resumo.substring(0, 500),
+              userId: citizen.id,
+              createdById: agenteId,
+            },
+          });
+        }
+      }
+
+      await prisma.auditLog.create({
+        data: {
+          action: "ADD_PRESO",
+          details: `Cálculo penal - Preso: ${nomePreso || "Não informado"}. Pena: ${pena || "—"}. Multa: R$ ${multa || "0"}.`,
+          executorId: agenteId,
+        },
+      });
+    } catch (logError) {
+      console.error("Erro ao criar registros internos:", logError);
     }
 
     return NextResponse.json(

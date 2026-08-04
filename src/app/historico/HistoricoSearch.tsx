@@ -12,6 +12,7 @@ import {
   DollarSign,
   ShieldAlert,
   ScrollText,
+  ShieldX,
 } from "lucide-react";
 
 export default function HistoricoSearch() {
@@ -59,6 +60,7 @@ export default function HistoricoSearch() {
       OBSERVACAO: "Observação",
       ADVERTENCIA_LEVE: "Advertência Leve",
       ADVERTENCIA_GRAVE: "Advertência Grave",
+      PRISAO: "Prisão",
     };
     return labels[type] || type;
   };
@@ -69,6 +71,7 @@ export default function HistoricoSearch() {
       case "OBSERVACAO": return "text-blue-300 border-blue-400/40 bg-blue-400/15";
       case "ADVERTENCIA_LEVE": return "text-yellow-300 border-yellow-400/40 bg-yellow-400/15";
       case "ADVERTENCIA_GRAVE": return "text-red-300 border-red-400/40 bg-red-400/15";
+      case "PRISAO": return "text-red-300 border-red-400/40 bg-red-400/15";
       default: return "text-gray-300 border-white/20 bg-white/10";
     }
   };
@@ -295,7 +298,57 @@ export default function HistoricoSearch() {
             </div>
           )}
 
-          {(pessoa.records.length === 0 && (!pessoa.multas || pessoa.multas.length === 0)) && (
+          {/* Prisões */}
+          {pessoa.prisoes && pessoa.prisoes.length > 0 && (
+            <div className="p-6 space-y-3">
+              <p className="text-[11px] text-gray-400 font-mono uppercase tracking-wider flex items-center gap-2">
+                <ShieldX className="w-3.5 h-3.5" />
+                Histórico de Prisões ({pessoa.totalPrisoes})
+              </p>
+              {pessoa.prisoes.map((p: any) => (
+                <div key={p.id} className="bg-red-500/5 border border-red-500/10 rounded-xl p-4 space-y-2">
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center gap-2">
+                      <ShieldAlert className="w-4 h-4 text-red-400" />
+                      <span className="text-xs font-mono text-white font-bold uppercase">
+                        Prisão
+                      </span>
+                    </div>
+                    <div className="flex items-center gap-2 text-[10px] text-gray-400 font-mono">
+                      <Calendar className="w-3 h-3" />
+                      {new Date(p.data).toLocaleDateString("pt-BR")}
+                    </div>
+                  </div>
+                  {p.pena && (
+                    <p className="text-[11px] font-mono text-red-300 uppercase font-bold">
+                      ⏳ {p.pena}
+                    </p>
+                  )}
+                  {p.multa && (
+                    <p className="text-[11px] font-mono text-red-300 uppercase font-bold">
+                      💰 R$ {p.multa}
+                    </p>
+                  )}
+                  <p className="text-[11px] text-gray-200 font-mono whitespace-pre-line">{p.resumo}</p>
+                  {p.imagemUrl && (
+                    <img
+                      src={p.imagemUrl}
+                      alt="Preso"
+                      className="w-full h-32 object-cover rounded-lg border border-white/5"
+                      onError={(e) => { (e.target as HTMLImageElement).style.display = "none"; }}
+                    />
+                  )}
+                  {p.agenteIcName && (
+                    <p className="text-[10px] text-gray-400 font-mono">
+                      Registrado por: {p.agenteIcName}
+                    </p>
+                  )}
+                </div>
+              ))}
+            </div>
+          )}
+
+          {(pessoa.records.length === 0 && (!pessoa.multas || pessoa.multas.length === 0) && (!pessoa.prisoes || pessoa.prisoes.length === 0)) && (
             <div className="p-6 text-center">
               <p className="text-xs text-gray-400 font-mono">Nenhum registro criminal encontrado</p>
             </div>

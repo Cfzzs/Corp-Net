@@ -29,6 +29,7 @@ interface SelectedItem {
 }
 
 interface CalculadoraPenalProps {
+  userId: string;
   userName: string;
   userIcName: string;
 }
@@ -41,7 +42,7 @@ const formatMes = (meses: number) => {
   return `${meses} mes${meses !== 1 ? "es" : ""}`;
 };
 
-export default function CalculadoraPenal({ userName, userIcName }: CalculadoraPenalProps) {
+export default function CalculadoraPenal({ userId, userName, userIcName }: CalculadoraPenalProps) {
   const [searchQuery, setSearchQuery] = useState("");
   const [selected, setSelected] = useState<SelectedItem[]>([]);
   const [reuPrimario, setReuPrimario] = useState(false);
@@ -159,6 +160,7 @@ export default function CalculadoraPenal({ userName, userIcName }: CalculadoraPe
       body.append("resumo", resumo);
       body.append("nomePreso", nomePreso);
       body.append("imagemUrl", imagemUrl);
+      body.append("agenteId", userId);
       body.append("agenteNome", userName);
       body.append("agenteIcName", userIcName);
       body.append("pena", totalMeses > 0 ? formatMes(totalMeses) : "Sem prisão");

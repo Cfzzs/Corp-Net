@@ -53,6 +53,23 @@ export async function GET(request: NextRequest) {
       return acc;
     }, {});
 
+    const prisons = await prisma.prisonRecord.findMany({
+      where: {
+        OR: [
+          { nome: { contains: q, mode: "insensitive" } },
+        ],
+      },
+      orderBy: { createdAt: "desc" },
+      take: 100,
+    });
+
+    const prisonByOwner = prisons.reduce((acc: any, p: any) => {
+      const key = p.nome.toLowerCase();
+      if (!acc[key]) acc[key] = [];
+      acc[key].push(p);
+      return acc;
+    }, {});
+
     const mapMulta = (inf: any) => ({
       id: inf.id,
       placa: inf.placa,
@@ -65,10 +82,25 @@ export async function GET(request: NextRequest) {
       data: inf.createdAt,
     });
 
+    const mapPrisao = (p: any) => ({
+      id: p.id,
+      resumo: p.resumo,
+      pena: p.pena,
+      multa: p.multa,
+      imagemUrl: p.imagemUrl,
+      agenteIcName: p.agenteIcName,
+      data: p.createdAt,
+    });
+
     const withMultas = (multas: any[]) => ({
       multas: multas.map(mapMulta),
       totalInfracoes: multas.length,
       totalMultas: multas.reduce((sum: number, i: any) => sum + i.valorTotal, 0),
+    });
+
+    const withPrisoes = (prisoes: any[]) => ({
+      prisoes: prisoes.map(mapPrisao),
+      totalPrisoes: prisoes.length,
     });
 
     const results = await Promise.all(users.map(async (user) => {
@@ -77,6 +109,7 @@ export async function GET(request: NextRequest) {
       });
 
       const multas = user.icName ? (infByOwner[user.icName.toLowerCase()] || []) : [];
+      const prisoes = user.icName ? (prisonByOwner[user.icName.toLowerCase()] || []) : [];
 
       return {
         id: user.id,
@@ -94,19 +127,22 @@ export async function GET(request: NextRequest) {
         isProcurado: !!blacklisted,
         blacklistReason: blacklisted?.reason || null,
         ...withMultas(multas),
+        ...withPrisoes(prisoes),
       };
     }));
 
-    // Pessoas que só aparecem nas multas veiculares (não registradas no sistema)
-    const matchedIcNames = new Set(results.map((r: any) => r.icName?.toLowerCase()));
-    const extraResults = Object.entries(infByOwner)
-      .filter(([nome]) => !matchedIcNames.has(nome))
+    // Pessoas que só aparecem nas multas veiculares ou prisões (não registradas no sistema)
+    const coveredNames = new Set(results.map((r: any) => r.icName?.toLowerCase()));
+    const extraFromInfractions = Object.entries(infByOwner)
+      .filter(([nome]) => !coveredNames.has(nome))
       .map(([nome, multas]: [string, any]) => {
         const m = multas as any[];
+        const nomeOriginal = m[0].proprietario;
+        coveredNames.add(nome);
         return {
           id: `inf-${nome}`,
-          name: nome,
-          icName: m[0].proprietario,
+          name: nomeOriginal,
+          icName: nomeOriginal,
           status: "-",
           role: "-",
           records: [],
@@ -114,6 +150,26 @@ export async function GET(request: NextRequest) {
           isProcurado: false,
           blacklistReason: null,
           ...withMultas(m),
+          ...withPrisoes(prisonByOwner[nome] || []),
+        };
+      });
+
+    const extraFromPrisons = Object.entries(prisonByOwner)
+      .filter(([nome]) => !coveredNames.has(nome))
+      .map(([nome, pris]: [string, any]) => {
+        const p = pris as any[];
+        return {
+          id: `pris-${nome}`,
+          name: p[0].nome,
+          icName: p[0].nome,
+          status: "-",
+          role: "-",
+          records: [],
+          advertencias: 0,
+          isProcurado: false,
+          blacklistReason: null,
+          ...withMultas([]),
+          ...withPrisoes(p),
         };
       });
 
@@ -132,9 +188,11 @@ export async function GET(request: NextRequest) {
         multas: [],
         totalInfracoes: 0,
         totalMultas: 0,
+        prisoes: [],
+        totalPrisoes: 0,
       }));
 
-    return NextResponse.json({ results: [...results, ...extraResults, ...blacklistResults] });
+    return NextResponse.json({ results: [...results, ...extraFromInfractions, ...extraFromPrisons, ...blacklistResults] });
   }
 
   if (tipo === "veiculo") {
