@@ -182,15 +182,16 @@ export default function HistoricoSearch() {
               <span className={`text-[10px] font-mono border px-2 py-0.5 rounded uppercase ${
                 pessoa.status === "ATIVO" ? "text-emerald-300 border-emerald-400/30 bg-emerald-400/10"
                 : pessoa.status === "EM_TESTE" ? "text-yellow-300 border-yellow-400/30 bg-yellow-400/10"
-                : "text-red-300 border-red-400/30 bg-red-400/10"
+                : pessoa.status === "BANIDO" ? "text-red-300 border-red-400/30 bg-red-400/10"
+                : "text-gray-300 border-white/20 bg-white/10"
               }`}>
-                {pessoa.status}
+                {pessoa.role === "-" ? "Fora do sistema" : pessoa.status}
               </span>
             </div>
           </div>
 
           {/* Stats */}
-          <div className="grid grid-cols-3 border-b border-white/5">
+          <div className="grid grid-cols-2 md:grid-cols-4 border-b border-white/5">
             <div className="p-4 text-center border-r border-white/5">
               <p className="text-xs text-gray-400 font-mono uppercase">Registros</p>
               <p className="text-lg font-mono font-bold text-white mt-1">{pessoa.records.length}</p>
@@ -201,10 +202,16 @@ export default function HistoricoSearch() {
                 {pessoa.advertencias}
               </p>
             </div>
-            <div className="p-4 text-center">
+            <div className="p-4 text-center border-r border-white/5">
               <p className="text-xs text-gray-400 font-mono uppercase">Procurado</p>
               <p className={`text-lg font-mono font-bold mt-1 ${pessoa.isProcurado ? "text-red-300" : "text-emerald-300"}`}>
                 {pessoa.isProcurado ? "SIM" : "NÃO"}
+              </p>
+            </div>
+            <div className="p-4 text-center">
+              <p className="text-xs text-gray-400 font-mono uppercase">Multas</p>
+              <p className={`text-lg font-mono font-bold mt-1 ${pessoa.totalMultas > 0 ? "text-primary" : "text-white"}`}>
+                {pessoa.totalMultas > 0 ? `R$ ${pessoa.totalMultas.toLocaleString("pt-BR")}` : "0"}
               </p>
             </div>
           </div>
@@ -243,7 +250,52 @@ export default function HistoricoSearch() {
             </div>
           )}
 
-          {pessoa.records.length === 0 && (
+          {/* Multas veiculares */}
+          {pessoa.multas && pessoa.multas.length > 0 && (
+            <div className="p-6 space-y-3">
+              <p className="text-[11px] text-gray-400 font-mono uppercase tracking-wider flex items-center gap-2">
+                <Car className="w-3.5 h-3.5" />
+                Multas de Veículos ({pessoa.totalInfracoes})
+              </p>
+              {pessoa.multas.map((inf: any) => (
+                <div key={inf.id} className="bg-white/5 rounded-xl p-4 space-y-2">
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center gap-2">
+                      <DollarSign className="w-4 h-4 text-primary" />
+                      <span className="text-xs font-mono text-white font-bold">
+                        R$ {inf.valorTotal.toLocaleString("pt-BR")}
+                      </span>
+                    </div>
+                    <div className="flex items-center gap-2 text-[10px] text-gray-400 font-mono">
+                      <Calendar className="w-3 h-3" />
+                      {new Date(inf.data).toLocaleDateString("pt-BR")}
+                    </div>
+                  </div>
+                  <div className="flex items-center gap-2 text-[11px]">
+                    {inf.placa && <span className="text-gray-300 font-mono uppercase">{inf.placa}</span>}
+                    {inf.modelo && <span className="text-gray-400 font-mono">| {inf.modelo}</span>}
+                    {inf.cor && <span className="text-gray-400 font-mono">| {inf.cor}</span>}
+                  </div>
+                  {inf.imagemUrl && (
+                    <img
+                      src={inf.imagemUrl}
+                      alt="Veículo"
+                      className="w-full h-32 object-cover rounded-lg border border-white/5"
+                      onError={(e) => { (e.target as HTMLImageElement).style.display = "none"; }}
+                    />
+                  )}
+                  <p className="text-[11px] text-gray-200 font-mono whitespace-pre-line">{inf.artigosTexto}</p>
+                  {inf.agenteIcName && (
+                    <p className="text-[10px] text-gray-400 font-mono">
+                      Registrado por: {inf.agenteIcName}
+                    </p>
+                  )}
+                </div>
+              ))}
+            </div>
+          )}
+
+          {(pessoa.records.length === 0 && (!pessoa.multas || pessoa.multas.length === 0)) && (
             <div className="p-6 text-center">
               <p className="text-xs text-gray-400 font-mono">Nenhum registro criminal encontrado</p>
             </div>

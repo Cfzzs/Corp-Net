@@ -36,10 +36,47 @@ export async function GET(request: NextRequest) {
       },
     });
 
+    const infractions = await prisma.vehicleInfraction.findMany({
+      where: {
+        OR: [
+          { proprietario: { contains: q, mode: "insensitive" } },
+        ],
+      },
+      orderBy: { createdAt: "desc" },
+      take: 100,
+    });
+
+    const infByOwner = infractions.reduce((acc: any, inf: any) => {
+      const key = inf.proprietario.toLowerCase();
+      if (!acc[key]) acc[key] = [];
+      acc[key].push(inf);
+      return acc;
+    }, {});
+
+    const mapMulta = (inf: any) => ({
+      id: inf.id,
+      placa: inf.placa,
+      modelo: inf.modelo,
+      cor: inf.cor,
+      artigosTexto: inf.artigosTexto,
+      valorTotal: inf.valorTotal,
+      imagemUrl: inf.imagemUrl,
+      agenteIcName: inf.agenteIcName,
+      data: inf.createdAt,
+    });
+
+    const withMultas = (multas: any[]) => ({
+      multas: multas.map(mapMulta),
+      totalInfracoes: multas.length,
+      totalMultas: multas.reduce((sum: number, i: any) => sum + i.valorTotal, 0),
+    });
+
     const results = await Promise.all(users.map(async (user) => {
       const blacklisted = await prisma.blacklist.findFirst({
         where: { discordId: user.id },
       });
+
+      const multas = user.icName ? (infByOwner[user.icName.toLowerCase()] || []) : [];
 
       return {
         id: user.id,
@@ -56,8 +93,29 @@ export async function GET(request: NextRequest) {
         advertencias: user.recordsReceived.filter(r => r.type === "ADVERTENCIA_LEVE" || r.type === "ADVERTENCIA_GRAVE").length,
         isProcurado: !!blacklisted,
         blacklistReason: blacklisted?.reason || null,
+        ...withMultas(multas),
       };
     }));
+
+    // Pessoas que só aparecem nas multas veiculares (não registradas no sistema)
+    const matchedIcNames = new Set(results.map((r: any) => r.icName?.toLowerCase()));
+    const extraResults = Object.entries(infByOwner)
+      .filter(([nome]) => !matchedIcNames.has(nome))
+      .map(([nome, multas]: [string, any]) => {
+        const m = multas as any[];
+        return {
+          id: `inf-${nome}`,
+          name: nome,
+          icName: m[0].proprietario,
+          status: "-",
+          role: "-",
+          records: [],
+          advertencias: 0,
+          isProcurado: false,
+          blacklistReason: null,
+          ...withMultas(m),
+        };
+      });
 
     const blacklistResults = blacklist
       .filter(b => !results.find(r => r.id === b.discordId))
@@ -71,9 +129,12 @@ export async function GET(request: NextRequest) {
         advertencias: 0,
         isProcurado: true,
         blacklistReason: b.reason,
+        multas: [],
+        totalInfracoes: 0,
+        totalMultas: 0,
       }));
 
-    return NextResponse.json({ results: [...results, ...blacklistResults] });
+    return NextResponse.json({ results: [...results, ...extraResults, ...blacklistResults] });
   }
 
   if (tipo === "veiculo") {
