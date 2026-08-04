@@ -7,7 +7,6 @@ import {
   Search,
   Plus,
   Trash2,
-  Copy,
   Check,
   Pill,
   AlertCircle,
@@ -49,7 +48,6 @@ export default function CalculadoraPenal({ userName, userIcName }: CalculadoraPe
   const [advogado, setAdvogado] = useState(false);
   const [reincidente, setReincidente] = useState(false);
   const [penaMaxima, setPenaMaxima] = useState(true);
-  const [copied, setCopied] = useState(false);
   const [nomePreso, setNomePreso] = useState("");
   const [imagemUrl, setImagemUrl] = useState("");
   const [enviando, setEnviando] = useState(false);
@@ -149,16 +147,6 @@ export default function CalculadoraPenal({ userName, userIcName }: CalculadoraPe
       `💰 MULTA TOTAL: R$ ${multaAplicada.toLocaleString("pt-BR")}`;
     return texto;
   }, [selected, reuPrimario, advogado, reincidente, penaMaxima, totalMeses, multaAplicada, reducaoAplicavel]);
-
-  const copyToClipboard = async () => {
-    try {
-      await navigator.clipboard.writeText(resumo);
-      setCopied(true);
-      setTimeout(() => setCopied(false), 2000);
-    } catch {
-      setCopied(false);
-    }
-  };
 
   const enviarDiscord = async () => {
     if (selected.length === 0) return;
@@ -604,25 +592,6 @@ export default function CalculadoraPenal({ userName, userIcName }: CalculadoraPe
                 )}
               </div>
             )}
-
-            <button
-              type="button"
-              onClick={copyToClipboard}
-              disabled={selected.length === 0}
-              className="w-full bg-primary hover:bg-primary/90 text-black font-bold py-3 rounded-xl flex items-center justify-center gap-2 transition uppercase disabled:opacity-40 disabled:cursor-not-allowed"
-            >
-              {copied ? (
-                <>
-                  <Check className="w-4 h-4" />
-                  <span>Copiado!</span>
-                </>
-              ) : (
-                <>
-                  <Copy className="w-4 h-4" />
-                  <span>Copiar Resultado</span>
-                </>
-              )}
-            </button>
 
             {erroEnvio && (
               <div className="bg-red-500/10 border border-red-500/30 rounded-xl p-4 flex items-center gap-3">
