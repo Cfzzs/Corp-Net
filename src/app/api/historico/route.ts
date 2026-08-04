@@ -16,8 +16,8 @@ export async function GET(request: NextRequest) {
     const users = await prisma.user.findMany({
       where: {
         OR: [
-          { icName: { contains: q } },
-          { name: { contains: q } },
+          { icName: { contains: q, mode: "insensitive" } },
+          { name: { contains: q, mode: "insensitive" } },
         ],
       },
       include: {
@@ -31,7 +31,7 @@ export async function GET(request: NextRequest) {
     const blacklist = await prisma.blacklist.findMany({
       where: {
         OR: [
-          { icName: { contains: q } },
+          { icName: { contains: q, mode: "insensitive" } },
         ],
       },
     });
@@ -80,9 +80,9 @@ export async function GET(request: NextRequest) {
     const infractions = await prisma.vehicleInfraction.findMany({
       where: {
         OR: [
-          { proprietario: { contains: q } },
-          { modelo: { contains: q } },
-          { placa: { contains: q } },
+          { proprietario: { contains: q, mode: "insensitive" } },
+          { modelo: { contains: q, mode: "insensitive" } },
+          { placa: { contains: q, mode: "insensitive" } },
         ],
       },
       orderBy: { createdAt: "desc" },
