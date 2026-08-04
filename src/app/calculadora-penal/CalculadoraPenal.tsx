@@ -17,12 +17,21 @@ import {
   UserCheck,
   UserX,
   Ban,
+  Send,
+  Image,
+  User,
+  ClipboardList,
 } from "lucide-react";
 import { CRIMES, GRAUS, Crime } from "./crimes";
 
 interface SelectedItem {
   crime: Crime;
-  extraQty: number;
+  extraQty: string;
+}
+
+interface CalculadoraPenalProps {
+  userName: string;
+  userIcName: string;
 }
 
 const formatMes = (meses: number) => {
@@ -33,7 +42,7 @@ const formatMes = (meses: number) => {
   return `${meses} mes${meses !== 1 ? "es" : ""}`;
 };
 
-export default function CalculadoraPenal() {
+export default function CalculadoraPenal({ userName, userIcName }: CalculadoraPenalProps) {
   const [searchQuery, setSearchQuery] = useState("");
   const [selected, setSelected] = useState<SelectedItem[]>([]);
   const [reuPrimario, setReuPrimario] = useState(false);
@@ -41,6 +50,11 @@ export default function CalculadoraPenal() {
   const [reincidente, setReincidente] = useState(false);
   const [penaMaxima, setPenaMaxima] = useState(true);
   const [copied, setCopied] = useState(false);
+  const [nomePreso, setNomePreso] = useState("");
+  const [imagemUrl, setImagemUrl] = useState("");
+  const [enviando, setEnviando] = useState(false);
+  const [enviado, setEnviado] = useState(false);
+  const [erroEnvio, setErroEnvio] = useState("");
 
   const filtered = useMemo(() => {
     const q = searchQuery.trim().toLowerCase();
@@ -60,31 +74,32 @@ export default function CalculadoraPenal() {
 
   const addCrime = (crime: Crime) => {
     if (isSelected(crime.id)) return;
-    setSelected((prev) => [...prev, { crime, extraQty: 0 }]);
+    setSelected((prev) => [...prev, { crime, extraQty: "" }]);
   };
 
   const removeCrime = (id: string) => {
     setSelected((prev) => prev.filter((s) => s.crime.id !== id));
   };
 
-  const setExtraQty = (id: string, value: number) => {
+  const setExtraQty = (id: string, value: string) => {
     setSelected((prev) =>
-      prev.map((s) => (s.crime.id === id ? { ...s, extraQty: Math.max(0, value) } : s))
+      prev.map((s) => (s.crime.id === id ? { ...s, extraQty: value } : s))
     );
   };
 
   const calcular = (s: SelectedItem) => {
     let meses = s.crime.penaMeses;
     let multa = s.crime.multa;
+    const qtd = parseInt(s.extraQty) || 0;
     if (s.crime.regra) {
       const r = s.crime.regra;
       if (r.tipo === "dinheiroSujo") {
-        multa += Math.floor(s.extraQty / r.cada) * r.multaPorCada;
+        multa += Math.floor(qtd / r.cada) * r.multaPorCada;
       } else if (r.tipo === "drogas") {
-        multa += Math.floor(s.extraQty / r.cada) * r.multaPorCada;
+        multa += Math.floor(qtd / r.cada) * r.multaPorCada;
       } else if (r.tipo === "adicional") {
-        multa += s.extraQty * r.multaPorCada;
-        meses += s.extraQty * (r.mesesPorCada || 0);
+        multa += qtd * r.multaPorCada;
+        meses += qtd * (r.mesesPorCada || 0);
       }
     }
     return { meses, multa };
@@ -109,10 +124,11 @@ export default function CalculadoraPenal() {
     const linhas = selected.map((s) => {
       const { meses, multa } = calcular(s);
       const extras: string[] = [];
-      if (s.crime.regra && s.extraQty > 0) {
-        if (s.crime.regra.tipo === "drogas") extras.push(`+${s.extraQty} und drogas`);
-        else if (s.crime.regra.tipo === "dinheiroSujo") extras.push(`+R$ ${s.extraQty.toLocaleString("pt-BR")} sujo`);
-        else extras.push(`+${s.extraQty} adicional(is)`);
+      const qtd = parseInt(s.extraQty) || 0;
+      if (s.crime.regra && qtd > 0) {
+        if (s.crime.regra.tipo === "drogas") extras.push(`+${qtd} und drogas`);
+        else if (s.crime.regra.tipo === "dinheiroSujo") extras.push(`+R$ ${qtd.toLocaleString("pt-BR")} sujo`);
+        else extras.push(`+${qtd} adicional(is)`);
       }
       return `- ${s.crime.artigo} ${s.crime.nome}${extras.length ? ` (${extras.join(", ")})` : ""} → ${meses > 0 ? formatMes(meses) + ", " : ""}R$ ${multa.toLocaleString("pt-BR")}`;
     });
@@ -141,6 +157,41 @@ export default function CalculadoraPenal() {
       setTimeout(() => setCopied(false), 2000);
     } catch {
       setCopied(false);
+    }
+  };
+
+  const enviarDiscord = async () => {
+    if (selected.length === 0) return;
+    setEnviando(true);
+    setEnviado(false);
+    setErroEnvio("");
+
+    try {
+      const body = new FormData();
+      body.append("resumo", resumo);
+      body.append("nomePreso", nomePreso);
+      body.append("imagemUrl", imagemUrl);
+      body.append("agenteNome", userName);
+      body.append("agenteIcName", userIcName);
+      body.append("pena", totalMeses > 0 ? formatMes(totalMeses) : "Sem prisão");
+      body.append("multa", multaAplicada.toLocaleString("pt-BR"));
+
+      const response = await fetch("/api/calculadora-penal", {
+        method: "POST",
+        body,
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.error || "Erro ao enviar para o Discord");
+      }
+
+      setEnviado(true);
+      setTimeout(() => setEnviado(false), 5000);
+    } catch (error) {
+      setErroEnvio(error instanceof Error ? error.message : "Erro ao enviar para o Discord");
+    } finally {
+      setEnviando(false);
     }
   };
 
@@ -381,7 +432,7 @@ export default function CalculadoraPenal() {
                                 type="number"
                                 min={0}
                                 value={s.extraQty}
-                                onChange={(e) => setExtraQty(s.crime.id, parseInt(e.target.value) || 0)}
+                                onChange={(e) => setExtraQty(s.crime.id, e.target.value)}
                                 className="w-20 text-center bg-tactical-dark border border-white/10 rounded-lg px-2 py-1.5 text-white font-mono text-xs focus:border-primary focus:ring-1 focus:ring-primary outline-none transition"
                               />
                               <span className="text-[10px] font-mono text-gray-400">und de drogas</span>
@@ -393,7 +444,7 @@ export default function CalculadoraPenal() {
                                 type="number"
                                 min={0}
                                 value={s.extraQty}
-                                onChange={(e) => setExtraQty(s.crime.id, parseInt(e.target.value) || 0)}
+                                onChange={(e) => setExtraQty(s.crime.id, e.target.value)}
                                 className="w-24 text-center bg-tactical-dark border border-white/10 rounded-lg px-2 py-1.5 text-white font-mono text-xs focus:border-primary focus:ring-1 focus:ring-primary outline-none transition"
                               />
                               <span className="text-[10px] font-mono text-gray-400">valor sujo (R$)</span>
@@ -405,7 +456,7 @@ export default function CalculadoraPenal() {
                                 type="number"
                                 min={0}
                                 value={s.extraQty}
-                                onChange={(e) => setExtraQty(s.crime.id, parseInt(e.target.value) || 0)}
+                                onChange={(e) => setExtraQty(s.crime.id, e.target.value)}
                                 className="w-16 text-center bg-tactical-dark border border-white/10 rounded-lg px-2 py-1.5 text-white font-mono text-xs focus:border-primary focus:ring-1 focus:ring-primary outline-none transition"
                               />
                               <span className="text-[10px] font-mono text-gray-400">adicional(is)</span>
@@ -429,6 +480,71 @@ export default function CalculadoraPenal() {
                 })}
               </div>
             )}
+          </div>
+
+          {/* DADOS DO PRESO */}
+          <div className="tactical-card rounded-2xl p-6 space-y-4">
+            <div className="flex items-center gap-2 mb-2">
+              <User className="w-5 h-5 text-primary" />
+              <h3 className="text-sm font-bold text-white font-mono uppercase tracking-wider">
+                Dados do Preso
+              </h3>
+            </div>
+
+            <div className="space-y-2">
+              <label className="text-xs font-mono text-gray-400 uppercase tracking-wider">
+                Nome do Preso *
+              </label>
+              <input
+                type="text"
+                value={nomePreso}
+                onChange={(e) => setNomePreso(e.target.value)}
+                placeholder="Nome do preso condenado"
+                className="w-full bg-tactical-dark border border-white/10 rounded-xl px-4 py-3 text-white font-mono text-sm focus:border-primary focus:ring-1 focus:ring-primary outline-none transition placeholder:text-gray-600"
+              />
+            </div>
+
+            <div className="space-y-2">
+              <label className="text-xs font-mono text-gray-400 uppercase tracking-wider">
+                Link da Foto (URL)
+              </label>
+              <input
+                type="url"
+                value={imagemUrl}
+                onChange={(e) => setImagemUrl(e.target.value)}
+                placeholder="https://cdn.discordapp.com/attachments/..."
+                className="w-full bg-tactical-dark border border-white/10 rounded-xl px-4 py-3 text-white font-mono text-sm focus:border-primary focus:ring-1 focus:ring-primary outline-none transition placeholder:text-gray-600"
+              />
+              <p className="text-[10px] text-gray-500 font-mono">
+                Cole o link da foto que você tirou pelo celular do jogo
+              </p>
+            </div>
+
+            {imagemUrl && (
+              <div className="rounded-xl overflow-hidden border border-white/10">
+                <img
+                  src={imagemUrl}
+                  alt="Preview"
+                  className="w-full h-48 object-cover"
+                  onError={(e) => {
+                    (e.target as HTMLImageElement).style.display = "none";
+                  }}
+                />
+              </div>
+            )}
+
+            <div className="space-y-2">
+              <label className="flex items-center gap-2 text-xs font-mono text-gray-400 uppercase tracking-wider">
+                <ClipboardList className="w-4 h-4" />
+                Agente Responsável
+              </label>
+              <input
+                type="text"
+                value={`${userIcName} (${userName})`}
+                disabled
+                className="w-full bg-white/5 border border-white/5 rounded-xl px-4 py-3 text-gray-400 font-mono text-sm cursor-not-allowed"
+              />
+            </div>
           </div>
 
           {/* RESULTADO FINAL */}
@@ -504,6 +620,39 @@ export default function CalculadoraPenal() {
                 <>
                   <Copy className="w-4 h-4" />
                   <span>Copiar Resultado</span>
+                </>
+              )}
+            </button>
+
+            {erroEnvio && (
+              <div className="bg-red-500/10 border border-red-500/30 rounded-xl p-4 flex items-center gap-3">
+                <AlertCircle className="w-5 h-5 text-red-500" />
+                <span className="text-red-500 font-mono text-sm">{erroEnvio}</span>
+              </div>
+            )}
+
+            {enviado && (
+              <div className="bg-emerald-500/10 border border-emerald-500/30 rounded-xl p-4 flex items-center gap-3">
+                <Check className="w-5 h-5 text-emerald-500" />
+                <span className="text-emerald-500 font-mono text-sm">Cálculo enviado para o Discord!</span>
+              </div>
+            )}
+
+            <button
+              type="button"
+              onClick={enviarDiscord}
+              disabled={enviando || selected.length === 0}
+              className="w-full bg-emerald-600 hover:bg-emerald-500 text-black font-bold py-3 rounded-xl flex items-center justify-center gap-2 transition uppercase disabled:opacity-40 disabled:cursor-not-allowed"
+            >
+              {enviando ? (
+                <>
+                  <div className="w-4 h-4 border-2 border-black/30 border-t-black rounded-full animate-spin" />
+                  <span>Enviando...</span>
+                </>
+              ) : (
+                <>
+                  <Send className="w-4 h-4" />
+                  <span>Enviar para o Discord</span>
                 </>
               )}
             </button>

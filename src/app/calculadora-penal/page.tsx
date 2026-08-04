@@ -16,7 +16,10 @@ export default async function CalculadoraPenalPage() {
   return (
     <LayoutWrapper title="CALCULADORA PENAL // PRS">
       <div className="max-w-7xl">
-        <CalculadoraPenal />
+        <CalculadoraPenal
+          userName={session.user.name || "Agente"}
+          userIcName={session.user.icName || "Não configurado"}
+        />
       </div>
     </LayoutWrapper>
   );
