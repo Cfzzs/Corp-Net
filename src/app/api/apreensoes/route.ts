@@ -14,6 +14,8 @@ export async function POST(request: NextRequest) {
     const veiculoEnvolvido = formData.get("veiculoEnvolvido") as string;
     const envolvidosStr = formData.get("envolvidos") as string;
     const procedimentosAdotados = formData.get("procedimentosAdotados") as string;
+    const quantidadeDrogas = parseInt(formData.get("quantidadeDrogas") as string) || 0;
+    const valorDrogas = parseInt(formData.get("valorDrogas") as string) || 0;
     const agenteId = formData.get("agenteId") as string;
     const agenteNome = formData.get("agenteNome") as string;
     const agenteIcName = formData.get("agenteIcName") as string;
@@ -62,7 +64,7 @@ export async function POST(request: NextRequest) {
       content: envolvidosMentions ? `<@&1341103708519403522> ${envolvidosMentions}` : "<@&1341103708519403522>",
       embeds: [
         {
-          title: "🚨 REGISTRO DE APREENSÃO - PRS",
+          title: "🚨 REGISTRO DE APREENSÃO DE DROGAS - PRS",
           color: 42168, // Azul (Decimal)
           fields: [
             {
@@ -78,6 +80,16 @@ export async function POST(request: NextRequest) {
             {
               name: "🕐 Data/Hora",
               value: dataFormatada,
+              inline: true
+            },
+            {
+              name: "💊 Drogas Apreendidas",
+              value: quantidadeDrogas > 0 ? `${quantidadeDrogas} unidade(s)` : "Nenhuma",
+              inline: true
+            },
+            {
+              name: "💰 Valor Calculado (5 drogas = R$1.000)",
+              value: `R$ ${valorDrogas.toLocaleString('pt-BR')}`,
               inline: true
             },
             {
@@ -162,7 +174,7 @@ export async function POST(request: NextRequest) {
       await prisma.auditLog.create({
         data: {
           action: "ADD_APREENSAO",
-          details: `Registro de apreensão - ${tipoOperacao} em ${localizacao}. Envolvidos: ${envolvidosDetails || "Nenhum"}. Veículo: ${veiculoEnvolvido || "Nenhum"}.`,
+          details: `Registro de apreensão de drogas - ${tipoOperacao} em ${localizacao}. Drogas: ${quantidadeDrogas} unidade(s), valor calculado: R$${valorDrogas.toLocaleString('pt-BR')}. Envolvidos: ${envolvidosDetails || "Nenhum"}. Veículo: ${veiculoEnvolvido || "Nenhum"}.`,
           executorId: agenteId,
         },
       });

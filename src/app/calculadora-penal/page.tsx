@@ -2,11 +2,11 @@ import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
 import { redirect } from "next/navigation";
 import { LayoutWrapper } from "@/components/layout-wrapper";
-import ApreensoesForm from "./ApreensoesForm";
+import CalculadoraPenal from "./CalculadoraPenal";
 
 export const dynamic = 'force-dynamic';
 
-export default async function ApreensoesPage() {
+export default async function CalculadoraPenalPage() {
   const session = await getServerSession(authOptions);
 
   if (!session || !session.user) {
@@ -14,13 +14,9 @@ export default async function ApreensoesPage() {
   }
 
   return (
-    <LayoutWrapper title="REGISTRO DE APREENSÃO DE DROGAS">
-      <div className="max-w-4xl">
-        <ApreensoesForm 
-          userId={session.user.id}
-          userName={session.user.name || "Agente"}
-          userIcName={session.user.icName || "Não configurado"}
-        />
+    <LayoutWrapper title="CALCULADORA PENAL // PRS">
+      <div className="max-w-7xl">
+        <CalculadoraPenal />
       </div>
     </LayoutWrapper>
   );

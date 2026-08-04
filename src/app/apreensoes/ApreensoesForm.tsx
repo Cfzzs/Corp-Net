@@ -11,7 +11,10 @@ import {
   Check,
   AlertCircle,
   Search,
-  UserPlus
+  UserPlus,
+  Pill,
+  Plus,
+  Minus
 } from "lucide-react";
 
 interface ApreensoesFormProps {
@@ -41,6 +44,9 @@ export default function ApreensoesForm({ userId, userName, userIcName }: Apreens
     procedimentosAdotados: "",
     imagem: null as File | null,
   });
+
+  const [quantidadeDrogas, setQuantidadeDrogas] = useState(0);
+  const valorDrogas = Math.floor(quantidadeDrogas / 5) * 1000;
 
   const [previewUrl, setPreviewUrl] = useState<string | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -91,6 +97,10 @@ export default function ApreensoesForm({ userId, userName, userIcName }: Apreens
 
   const handleEnvolvidosChange = (selectedUsers: any[]) => {
     setFormData(prev => ({ ...prev, envolvidos: selectedUsers }));
+  };
+
+  const handleQuantidadeDrogas = (delta: number) => {
+    setQuantidadeDrogas(prev => Math.max(0, prev + delta));
   };
 
   // Search users
@@ -189,6 +199,8 @@ export default function ApreensoesForm({ userId, userName, userIcName }: Apreens
       formDataToSend.append("veiculoEnvolvido", formData.veiculoEnvolvido);
       formDataToSend.append("envolvidos", JSON.stringify(formData.envolvidos.map((u: any) => ({ id: u.id, name: u.name, icName: u.icName }))));
       formDataToSend.append("procedimentosAdotados", formData.procedimentosAdotados);
+      formDataToSend.append("quantidadeDrogas", String(quantidadeDrogas));
+      formDataToSend.append("valorDrogas", String(valorDrogas));
       formDataToSend.append("agenteId", userId);
       formDataToSend.append("agenteNome", userName);
       formDataToSend.append("agenteIcName", userIcName);
@@ -220,6 +232,7 @@ export default function ApreensoesForm({ userId, userName, userIcName }: Apreens
         procedimentosAdotados: "",
         imagem: null,
       });
+      setQuantidadeDrogas(0);
       setPreviewUrl(null);
       if (fileInputRef.current) {
         fileInputRef.current.value = "";
@@ -242,7 +255,7 @@ export default function ApreensoesForm({ userId, userName, userIcName }: Apreens
         <div className="flex items-center gap-3 mb-2">
           <Siren className="w-6 h-6 text-primary" />
           <h2 className="text-lg font-bold text-white font-mono uppercase tracking-wider">
-            Novo Registro de Apreensão
+            Novo Registro de Apreensão de Drogas
           </h2>
         </div>
         <p className="text-sm text-gray-400 font-sans">
@@ -288,6 +301,48 @@ export default function ApreensoesForm({ userId, userName, userIcName }: Apreens
             <option value="Operação Tática">Operação Tática</option>
             <option value="Investigação">Investigação</option>
           </select>
+        </div>
+
+        {/* Cálculo de Drogas */}
+        <div className="tactical-card-green rounded-xl p-4 space-y-3">
+          <label className="flex items-center gap-2 text-xs font-mono text-emerald-400 uppercase tracking-wider font-bold">
+            <Pill className="w-4 h-4" />
+            Cálculo de Drogas
+          </label>
+          <div className="flex flex-wrap items-center gap-4">
+            <div className="flex items-center gap-2">
+              <button
+                type="button"
+                onClick={() => handleQuantidadeDrogas(-1)}
+                className="w-10 h-10 rounded-xl bg-white/5 border border-white/10 text-white hover:bg-danger/20 hover:border-danger/30 hover:text-danger transition flex items-center justify-center"
+              >
+                <Minus className="w-4 h-4" />
+              </button>
+              <input
+                type="number"
+                min={0}
+                value={quantidadeDrogas}
+                onChange={(e) => setQuantidadeDrogas(Math.max(0, parseInt(e.target.value) || 0))}
+                className="w-24 text-center bg-tactical-dark border border-white/10 rounded-xl px-3 py-2 text-white font-mono text-lg font-bold focus:border-primary focus:ring-1 focus:ring-primary outline-none transition"
+              />
+              <button
+                type="button"
+                onClick={() => handleQuantidadeDrogas(1)}
+                className="w-10 h-10 rounded-xl bg-white/5 border border-white/10 text-white hover:bg-primary/20 hover:border-primary/30 hover:text-primary transition flex items-center justify-center"
+              >
+                <Plus className="w-4 h-4" />
+              </button>
+            </div>
+            <div className="text-xs font-mono text-gray-400">
+              Regra: <span className="text-white font-bold">a cada 5 drogas</span> = <span className="text-emerald-400 font-bold">R$ 1.000</span>
+            </div>
+          </div>
+          <div className="flex items-center justify-between bg-tactical-dark border border-emerald-400/20 rounded-xl px-4 py-3">
+            <span className="text-xs font-mono text-gray-400 uppercase tracking-wider">Valor Calculado</span>
+            <span className="text-xl font-mono font-bold text-emerald-400 shadow-tactical-glow-green">
+              R$ {valorDrogas.toLocaleString("pt-BR")}
+            </span>
+          </div>
         </div>
 
         {/* Data/Hora e Localização */}
@@ -526,7 +581,7 @@ export default function ApreensoesForm({ userId, userName, userIcName }: Apreens
           ) : (
             <>
               <Siren className="w-4 h-4" />
-              <span>Registrar Apreensão</span>
+              <span>Registrar Apreensão de Drogas</span>
             </>
           )}
         </button>

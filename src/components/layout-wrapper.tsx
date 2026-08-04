@@ -17,7 +17,8 @@ import {
   FileClock,
   Siren,
   Car,
-  ScrollText
+  ScrollText,
+  Scale
 } from "lucide-react";
 
 export function LayoutWrapper({ children, title }: { children: React.ReactNode; title: string }) {
@@ -39,8 +40,9 @@ export function LayoutWrapper({ children, title }: { children: React.ReactNode; 
     { name: "Meu Perfil", href: "/dashboard", icon: LayoutDashboard, roles: ["MEMBRO", "LIDER", "ADMIN", "DEV", "STAFF"] },
     { name: "Membros", href: "/membros", icon: Users, roles: ["LIDER", "ADMIN", "DEV", "STAFF"] },
     { name: "Em Teste", href: "/testes", icon: Clock, roles: ["LIDER", "ADMIN", "DEV", "STAFF"] },
-    { name: "Apreensões", href: "/apreensoes", icon: Siren, roles: ["MEMBRO", "LIDER", "ADMIN", "DEV", "STAFF"] },
+    { name: "Apreensão de Drogas", href: "/apreensoes", icon: Siren, roles: ["MEMBRO", "LIDER", "ADMIN", "DEV", "STAFF"] },
     { name: "Apreensão Veicular", href: "/apreensao-veicular", icon: Car, roles: ["MEMBRO", "LIDER", "ADMIN", "DEV", "STAFF"] },
+    { name: "Calculadora Penal", href: "/calculadora-penal", icon: Scale, roles: ["MEMBRO", "LIDER", "ADMIN", "DEV", "STAFF"] },
     { name: "Histórico Criminal", href: "/historico", icon: ScrollText, roles: ["MEMBRO", "LIDER", "ADMIN", "DEV", "STAFF"] },
     { name: "Lista Negra", href: "/blacklist", icon: Skull, roles: ["MEMBRO", "LIDER", "ADMIN", "DEV", "STAFF"] },
     { name: "Auditoria", href: "/logs", icon: FileClock, roles: ["LIDER", "ADMIN", "DEV", "STAFF"] },

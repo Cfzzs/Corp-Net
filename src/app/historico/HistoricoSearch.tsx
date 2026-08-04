@@ -65,11 +65,11 @@ export default function HistoricoSearch() {
 
   const getTipoColor = (type: string) => {
     switch (type) {
-      case "ELOGIO": return "text-emerald-400 border-emerald-500/20 bg-emerald-500/10";
-      case "OBSERVACAO": return "text-blue-400 border-blue-500/20 bg-blue-500/10";
-      case "ADVERTENCIA_LEVE": return "text-yellow-400 border-yellow-500/20 bg-yellow-500/10";
-      case "ADVERTENCIA_GRAVE": return "text-red-400 border-red-500/20 bg-red-500/10";
-      default: return "text-gray-400 border-white/10 bg-white/5";
+      case "ELOGIO": return "text-emerald-300 border-emerald-400/40 bg-emerald-400/15";
+      case "OBSERVACAO": return "text-blue-300 border-blue-400/40 bg-blue-400/15";
+      case "ADVERTENCIA_LEVE": return "text-yellow-300 border-yellow-400/40 bg-yellow-400/15";
+      case "ADVERTENCIA_GRAVE": return "text-red-300 border-red-400/40 bg-red-400/15";
+      default: return "text-gray-300 border-white/20 bg-white/10";
     }
   };
 
@@ -83,7 +83,7 @@ export default function HistoricoSearch() {
             Histórico Criminal
           </h2>
         </div>
-        <p className="text-sm text-gray-400 font-sans mb-6">
+        <p className="text-sm text-gray-300 font-sans mb-6">
           Consulte o histórico de pessoas e veículos. Dados de ocorrências, apreensões e infrações.
         </p>
 
@@ -122,7 +122,7 @@ export default function HistoricoSearch() {
             onChange={(e) => setQuery(e.target.value)}
             onKeyDown={handleKeyDown}
             placeholder={tipo === "pessoa" ? "Buscar por nome IC ou Discord..." : "Buscar por proprietário ou modelo do veículo..."}
-            className="flex-1 bg-tactical-dark border border-white/10 rounded-xl px-4 py-3 text-white font-mono text-sm focus:border-primary focus:ring-1 focus:ring-primary outline-none transition placeholder:text-gray-600"
+            className="flex-1 bg-tactical-dark border border-white/10 rounded-xl px-4 py-3 text-white font-mono text-sm focus:border-primary focus:ring-1 focus:ring-primary outline-none transition placeholder:text-gray-500"
           />
           <button
             onClick={handleSearch}
@@ -143,14 +143,14 @@ export default function HistoricoSearch() {
       {loading && (
         <div className="text-center py-12">
           <div className="w-8 h-8 border-2 border-primary/30 border-t-primary rounded-full animate-spin mx-auto mb-3" />
-          <p className="text-gray-400 font-mono text-xs">Buscando dados...</p>
+          <p className="text-gray-300 font-mono text-xs">Buscando dados...</p>
         </div>
       )}
 
       {!loading && searched && results.length === 0 && (
         <div className="tactical-card rounded-2xl p-12 text-center">
-          <Search className="w-10 h-10 text-gray-500 mx-auto mb-3" />
-          <p className="text-gray-400 font-mono text-sm">Nenhum resultado encontrado</p>
+          <Search className="w-10 h-10 text-gray-400 mx-auto mb-3" />
+          <p className="text-gray-300 font-mono text-sm">Nenhum resultado encontrado</p>
         </div>
       )}
 
@@ -170,19 +170,19 @@ export default function HistoricoSearch() {
                 <h3 className="text-white font-mono font-bold text-sm">
                   {pessoa.icName || "N/I"}
                 </h3>
-                <p className="text-gray-500 font-mono text-[11px]">@{pessoa.name}</p>
+                <p className="text-gray-400 font-mono text-[11px]">@{pessoa.name}</p>
               </div>
             </div>
             <div className="flex items-center gap-2">
               {pessoa.isProcurado && (
-                <span className="flex items-center gap-1 text-[10px] font-mono text-red-400 bg-red-500/10 border border-red-500/20 px-2 py-0.5 rounded uppercase font-bold">
+                <span className="flex items-center gap-1 text-[10px] font-mono text-red-300 bg-red-500/15 border border-red-500/30 px-2 py-0.5 rounded uppercase font-bold">
                   <Ban className="w-3 h-3" /> PROCURADO
                 </span>
               )}
               <span className={`text-[10px] font-mono border px-2 py-0.5 rounded uppercase ${
-                pessoa.status === "ATIVO" ? "text-emerald-400 border-emerald-500/20 bg-emerald-500/10"
-                : pessoa.status === "EM_TESTE" ? "text-yellow-400 border-yellow-500/20 bg-yellow-500/10"
-                : "text-red-400 border-red-500/20 bg-red-500/10"
+                pessoa.status === "ATIVO" ? "text-emerald-300 border-emerald-400/30 bg-emerald-400/10"
+                : pessoa.status === "EM_TESTE" ? "text-yellow-300 border-yellow-400/30 bg-yellow-400/10"
+                : "text-red-300 border-red-400/30 bg-red-400/10"
               }`}>
                 {pessoa.status}
               </span>
@@ -192,18 +192,18 @@ export default function HistoricoSearch() {
           {/* Stats */}
           <div className="grid grid-cols-3 border-b border-white/5">
             <div className="p-4 text-center border-r border-white/5">
-              <p className="text-xs text-gray-500 font-mono uppercase">Registros</p>
+              <p className="text-xs text-gray-400 font-mono uppercase">Registros</p>
               <p className="text-lg font-mono font-bold text-white mt-1">{pessoa.records.length}</p>
             </div>
             <div className="p-4 text-center border-r border-white/5">
-              <p className="text-xs text-gray-500 font-mono uppercase">Advertências</p>
-              <p className={`text-lg font-mono font-bold mt-1 ${pessoa.advertencias > 0 ? "text-red-400" : "text-white"}`}>
+              <p className="text-xs text-gray-400 font-mono uppercase">Advertências</p>
+              <p className={`text-lg font-mono font-bold mt-1 ${pessoa.advertencias > 0 ? "text-red-300" : "text-white"}`}>
                 {pessoa.advertencias}
               </p>
             </div>
             <div className="p-4 text-center">
-              <p className="text-xs text-gray-500 font-mono uppercase">Procurado</p>
-              <p className={`text-lg font-mono font-bold mt-1 ${pessoa.isProcurado ? "text-red-400" : "text-emerald-400"}`}>
+              <p className="text-xs text-gray-400 font-mono uppercase">Procurado</p>
+              <p className={`text-lg font-mono font-bold mt-1 ${pessoa.isProcurado ? "text-red-300" : "text-emerald-300"}`}>
                 {pessoa.isProcurado ? "SIM" : "NÃO"}
               </p>
             </div>
@@ -214,8 +214,8 @@ export default function HistoricoSearch() {
             <div className="mx-6 mt-4 p-3 bg-red-500/5 border border-red-500/20 rounded-xl flex items-start gap-3">
               <ShieldAlert className="w-4 h-4 text-red-500 mt-0.5 shrink-0" />
               <div>
-                <p className="text-[11px] font-mono text-red-400 uppercase font-bold mb-0.5">Motivo da Procurado</p>
-                <p className="text-xs text-gray-300 font-mono">{pessoa.blacklistReason}</p>
+                <p className="text-[11px] font-mono text-red-300 uppercase font-bold mb-0.5">Motivo da Procurado</p>
+                <p className="text-xs text-gray-200 font-mono">{pessoa.blacklistReason}</p>
               </div>
             </div>
           )}
@@ -223,7 +223,7 @@ export default function HistoricoSearch() {
           {/* Records */}
           {pessoa.records.length > 0 && (
             <div className="p-6 space-y-3">
-              <p className="text-[11px] text-gray-500 font-mono uppercase tracking-wider flex items-center gap-2">
+              <p className="text-[11px] text-gray-400 font-mono uppercase tracking-wider flex items-center gap-2">
                 <FileText className="w-3.5 h-3.5" />
                 Histórico de Registros
               </p>
@@ -233,8 +233,8 @@ export default function HistoricoSearch() {
                     {getTipoLabel(record.type)}
                   </div>
                   <div className="flex-1 min-w-0">
-                    <p className="text-xs text-gray-300 font-mono">{record.description}</p>
-                    <p className="text-[10px] text-gray-600 font-mono mt-1">
+                    <p className="text-xs text-gray-200 font-mono">{record.description}</p>
+                    <p className="text-[10px] text-gray-400 font-mono mt-1">
                       {new Date(record.date).toLocaleDateString("pt-BR")}
                     </p>
                   </div>
@@ -245,7 +245,7 @@ export default function HistoricoSearch() {
 
           {pessoa.records.length === 0 && (
             <div className="p-6 text-center">
-              <p className="text-xs text-gray-500 font-mono">Nenhum registro criminal encontrado</p>
+              <p className="text-xs text-gray-400 font-mono">Nenhum registro criminal encontrado</p>
             </div>
           )}
         </div>
@@ -261,11 +261,11 @@ export default function HistoricoSearch() {
               </div>
               <div>
                 <h3 className="text-white font-mono font-bold text-sm">{veiculo.proprietario}</h3>
-                <p className="text-gray-500 font-mono text-[11px]">{veiculo.totalInfracoes} infração(ões) registrada(s)</p>
+                <p className="text-gray-400 font-mono text-[11px]">{veiculo.totalInfracoes} infração(ões) registrada(s)</p>
               </div>
             </div>
             <div className="text-right">
-              <p className="text-[10px] text-gray-500 font-mono uppercase">Total em Multas</p>
+              <p className="text-[10px] text-gray-400 font-mono uppercase">Total em Multas</p>
               <p className="text-lg font-mono font-bold text-primary">
                 R$ {veiculo.totalMultas.toLocaleString("pt-BR")}
               </p>
@@ -274,6 +274,10 @@ export default function HistoricoSearch() {
 
           {/* Infractions */}
           <div className="p-6 space-y-3">
+            <p className="text-[11px] text-gray-400 font-mono uppercase tracking-wider flex items-center gap-2">
+              <AlertTriangle className="w-3.5 h-3.5" />
+              Infrações Registradas
+            </p>
             {veiculo.infractions.map((inf: any) => (
               <div key={inf.id} className="bg-white/5 rounded-xl p-4 space-y-2">
                 <div className="flex items-center justify-between">
@@ -283,14 +287,14 @@ export default function HistoricoSearch() {
                       R$ {inf.valorTotal.toLocaleString("pt-BR")}
                     </span>
                   </div>
-                  <div className="flex items-center gap-2 text-[10px] text-gray-500 font-mono">
+                  <div className="flex items-center gap-2 text-[10px] text-gray-400 font-mono">
                     <Calendar className="w-3 h-3" />
                     {new Date(inf.data).toLocaleDateString("pt-BR")}
                   </div>
                 </div>
                 <div className="flex items-center gap-2 text-[11px]">
-                  {inf.modelo && <span className="text-gray-400 font-mono">{inf.modelo}</span>}
-                  {inf.cor && <span className="text-gray-500 font-mono">| {inf.cor}</span>}
+                  {inf.modelo && <span className="text-gray-300 font-mono">{inf.modelo}</span>}
+                  {inf.cor && <span className="text-gray-400 font-mono">| {inf.cor}</span>}
                 </div>
                 {inf.imagemUrl && (
                   <img
@@ -300,9 +304,9 @@ export default function HistoricoSearch() {
                     onError={(e) => { (e.target as HTMLImageElement).style.display = "none"; }}
                   />
                 )}
-                <p className="text-[11px] text-gray-400 font-mono">{inf.artigosTexto}</p>
+                <p className="text-[11px] text-gray-200 font-mono whitespace-pre-line">{inf.artigosTexto}</p>
                 {inf.agenteIcName && (
-                  <p className="text-[10px] text-gray-600 font-mono">
+                  <p className="text-[10px] text-gray-400 font-mono">
                     Registrado por: {inf.agenteIcName}
                   </p>
                 )}
