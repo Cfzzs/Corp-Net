@@ -2,6 +2,62 @@ import { NextRequest, NextResponse } from "next/server";
 
 export const dynamic = 'force-dynamic';
 
+async function enviarDiscord(
+  webhookUrl: string,
+  embed: any,
+  imagemUrl?: string
+): Promise<{ ok: boolean; text: string }> {
+  // Tenta baixar a imagem no servidor e enviar anexada ao webhook.
+  // Isso resolve links do cdn.discordapp.com que o proxy do Discord recusa embutir.
+  if (imagemUrl) {
+    try {
+      const imageRes = await fetch(imagemUrl, {
+        headers: { "User-Agent": "Mozilla/5.0" },
+      });
+      if (imageRes.ok) {
+        const contentType = imageRes.headers.get("content-type") || "";
+        if (contentType.startsWith("image/")) {
+          const buffer = Buffer.from(await imageRes.arrayBuffer());
+          const ext = contentType.split("/")[1]?.split(";")[0] || "png";
+
+          const form = new FormData();
+          form.append(
+            "payload_json",
+            JSON.stringify({
+              content: embed.content,
+              embeds: [
+                {
+                  ...embed.embeds[0],
+                  image: { url: `attachment://foto.${ext}` },
+                },
+              ],
+            })
+          );
+          form.append("files[0]", new Blob([buffer], { type: contentType }), `foto.${ext}`);
+
+          const res = await fetch(webhookUrl, {
+            method: "POST",
+            body: form,
+          });
+          if (res.ok) return { ok: true, text: await res.text().catch(() => "") };
+        }
+      }
+    } catch (error) {
+      console.error("Falha ao baixar imagem, usando fallback:", error);
+    }
+  }
+
+  const res = await fetch(webhookUrl, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify(embed),
+  });
+
+  return { ok: res.ok, text: await res.text().catch(() => "") };
+}
+
 export async function POST(request: NextRequest) {
   try {
     const formData = await request.formData();
@@ -69,25 +125,15 @@ export async function POST(request: NextRequest) {
             icon_url: "https://cdn.discordapp.com/embed/avatars/0.png"
           },
           timestamp: new Date().toISOString(),
+          image: imagemUrl ? { url: imagemUrl } : undefined,
         }
       ]
     };
 
-    if (imagemUrl) {
-      embedPayload.embeds[0].image = { url: imagemUrl };
-    }
-
-    const discordResponse = await fetch(webhookUrl, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify(embedPayload),
-    });
+    const discordResponse = await enviarDiscord(webhookUrl, embedPayload, imagemUrl);
 
     if (!discordResponse.ok) {
-      const errorText = await discordResponse.text();
-      console.error("Erro ao enviar para Discord:", errorText);
+      console.error("Erro ao enviar para Discord:", discordResponse.text);
       return NextResponse.json(
         { error: "Erro ao enviar notificação para Discord" },
         { status: 500 }
