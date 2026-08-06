@@ -90,6 +90,8 @@ export default async function LogsPage({
       case "ADD_APREENSAO": return "APREENSÃO DE DROGAS";
       case "ADD_APREENSAO_VEICULAR": return "APREENSÃO VEICULAR";
       case "ADD_PRESO": return "CÁLCULO PENAL / PRISÃO";
+      case "ABRIR_BLITZ": return "ABERTURA DE BLITZ";
+      case "FECHAR_BLITZ": return "ENCERRAMENTO DE BLITZ";
       default: return action;
     }
   };

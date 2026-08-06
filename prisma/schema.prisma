@@ -79,7 +79,7 @@ model Blacklist {
 
 model AuditLog {
   id          String   @id @default(uuid())
-  action      String   // Tipo de ação: "UPDATE_PROFILE", "DELETE_PROFILE", "ADD_RECORD", "DELETE_RECORD", "ADD_BLACKLIST", "REMOVE_BLACKLIST", "ADD_APREENSAO", "ADD_APREENSAO_VEICULAR", "ADD_PRESO"
+  action      String   // Tipo de ação: "UPDATE_PROFILE", "DELETE_PROFILE", "ADD_RECORD", "DELETE_RECORD", "ADD_BLACKLIST", "REMOVE_BLACKLIST", "ADD_APREENSAO", "ADD_APREENSAO_VEICULAR", "ADD_PRESO", "ABRIR_BLITZ", "FECHAR_BLITZ"
   details     String   // Descrição humana da ação
   
   // Quem executou a ação (Lider/Admin)
@@ -134,4 +134,39 @@ model PrisonRecord {
 
   @@index([nome])
   @@index([agenteId])
+}
+
+model Blitz {
+  id                  String   @id @default(uuid())
+  local               String
+  abertaPor           String   // userId
+  abertaPorNome       String
+  abertaPorIcName     String
+  abertaEm            DateTime @default(now())
+  fechadaEm           DateTime?
+  veiculosApreendidos String[] @default([])
+
+  presencas BlitzPresenca[]
+
+  createdAt DateTime @default(now())
+
+  @@index([abertaPor])
+}
+
+model BlitzPresenca {
+  id        String   @id @default(uuid())
+  blitzId   String
+  blitz     Blitz    @relation(fields: [blitzId], references: [id], onDelete: Cascade)
+  userId    String
+  nome      String   // Nome IC capturado no momento da presença
+  discord   String   // Username Discord capturado no momento
+  matricula String
+  patente   String
+  entrada   DateTime @default(now())
+  saida     DateTime?
+
+  createdAt DateTime @default(now())
+
+  @@index([blitzId])
+  @@index([userId])
 }

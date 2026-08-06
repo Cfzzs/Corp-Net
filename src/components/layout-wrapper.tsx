@@ -18,7 +18,8 @@ import {
   Siren,
   Car,
   ScrollText,
-  Scale
+  Scale,
+  TrafficCone
 } from "lucide-react";
 
 export function LayoutWrapper({ children, title }: { children: React.ReactNode; title: string }) {
@@ -43,6 +44,7 @@ export function LayoutWrapper({ children, title }: { children: React.ReactNode; 
     { name: "Apreensão de Drogas", href: "/apreensoes", icon: Siren, roles: ["MEMBRO", "LIDER", "ADMIN", "DEV", "STAFF"] },
     { name: "Apreensão Veicular", href: "/apreensao-veicular", icon: Car, roles: ["MEMBRO", "LIDER", "ADMIN", "DEV", "STAFF"] },
     { name: "Calculadora Penal", href: "/calculadora-penal", icon: Scale, roles: ["MEMBRO", "LIDER", "ADMIN", "DEV", "STAFF"] },
+    { name: "Blitz", href: "/blitz", icon: TrafficCone, roles: ["MEMBRO", "LIDER", "ADMIN", "DEV", "STAFF"] },
     { name: "Histórico Criminal", href: "/historico", icon: ScrollText, roles: ["MEMBRO", "LIDER", "ADMIN", "DEV", "STAFF"] },
     { name: "Lista Negra", href: "/blacklist", icon: Skull, roles: ["MEMBRO", "LIDER", "ADMIN", "DEV", "STAFF"] },
     { name: "Auditoria", href: "/logs", icon: FileClock, roles: ["LIDER", "ADMIN", "DEV", "STAFF"] },

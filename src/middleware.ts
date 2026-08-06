@@ -44,5 +44,6 @@ export const config = {
     "/cadastro",
     "/admin/:path*",
     "/apreensoes",
+    "/blitz",
   ],
 };
