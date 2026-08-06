@@ -35,10 +35,6 @@ interface CalculadoraPenalProps {
 }
 
 const formatMes = (meses: number) => {
-  const anos = Math.floor(meses / 12);
-  const resto = meses % 12;
-  if (anos > 0 && resto > 0) return `${anos} ano${anos > 1 ? "s" : ""} e ${resto} mes${resto > 1 ? "es" : ""}`;
-  if (anos > 0) return `${anos} ano${anos > 1 ? "s" : ""}`;
   return `${meses} mes${meses !== 1 ? "es" : ""}`;
 };
 
@@ -48,7 +44,6 @@ export default function CalculadoraPenal({ userId, userName, userIcName }: Calcu
   const [reuPrimario, setReuPrimario] = useState(false);
   const [advogado, setAdvogado] = useState(false);
   const [reincidente, setReincidente] = useState(false);
-  const [penaMaxima, setPenaMaxima] = useState(true);
   const [nomePreso, setNomePreso] = useState("");
   const [imagemUrl, setImagemUrl] = useState("");
   const [enviando, setEnviando] = useState(false);
@@ -115,7 +110,7 @@ export default function CalculadoraPenal({ userId, userName, userIcName }: Calcu
   }
   if (reincidente) totalMeses *= 1.10;
   totalMeses = Math.round(totalMeses);
-  if (penaMaxima) totalMeses = Math.min(totalMeses, 60);
+  totalMeses = Math.min(totalMeses, 60);
 
   const multaAplicada = baseMulta;
 
@@ -135,7 +130,7 @@ export default function CalculadoraPenal({ userId, userName, userIcName }: Calcu
     if (reuPrimario && reducaoAplicavel) condicoes.push("Réu primário (-5%)");
     if (advogado && reducaoAplicavel) condicoes.push("Advogado constituído (-20%)");
     if (reincidente) condicoes.push("Réu reincidente (+10%)");
-    if (penaMaxima) condicoes.push("Pena máxima 60 meses");
+    if (totalMeses === 60 && baseMeses > 60) condicoes.push("Pena máxima: 60 meses");
     if ((reuPrimario || advogado) && !reducaoAplicavel) condicoes.push("Redução NÃO aplicada (Desacato/Homicídio)");
 
     const texto =
@@ -147,7 +142,7 @@ export default function CalculadoraPenal({ userId, userName, userIcName }: Calcu
       `⏳ PENA TOTAL: ${totalMeses > 0 ? formatMes(totalMeses) : "Sem prisão"}\n` +
       `💰 MULTA TOTAL: R$ ${multaAplicada.toLocaleString("pt-BR")}`;
     return texto;
-  }, [selected, reuPrimario, advogado, reincidente, penaMaxima, totalMeses, multaAplicada, reducaoAplicavel]);
+  }, [selected, reuPrimario, advogado, reincidente, totalMeses, multaAplicada, reducaoAplicavel]);
 
   const enviarDiscord = async () => {
     if (selected.length === 0) return;
@@ -270,26 +265,6 @@ export default function CalculadoraPenal({ userId, userName, userIcName }: Calcu
             </div>
             <span className={`text-xs font-mono font-bold ${reincidente ? "text-red-300" : "text-gray-500"}`}>
               {reincidente ? "+10%" : ""}
-            </span>
-          </label>
-
-          <label className={`flex items-center gap-3 p-4 rounded-xl border transition cursor-pointer ${
-            penaMaxima
-              ? "bg-yellow-400/10 border-yellow-400/30"
-              : "bg-white/5 border-white/10 hover:border-white/20"
-          }`}>
-            <input
-              type="checkbox"
-              checked={penaMaxima}
-              onChange={(e) => setPenaMaxima(e.target.checked)}
-              className="w-4 h-4 accent-yellow-500"
-            />
-            <div className="flex-1">
-              <p className="text-sm font-mono text-white font-bold">Pena Máxima: 60 meses</p>
-              <p className="text-[11px] text-gray-400 font-mono">Desmarque para casos graves analisados pelo jurídico</p>
-            </div>
-            <span className={`text-xs font-mono font-bold ${penaMaxima ? "text-yellow-300" : "text-gray-500"}`}>
-              {penaMaxima ? "60M" : "LIVRE"}
             </span>
           </label>
         </div>
@@ -586,7 +561,7 @@ export default function CalculadoraPenal({ userId, userName, userIcName }: Calcu
                     <span>+10%</span>
                   </p>
                 )}
-                {penaMaxima && totalMeses === 60 && baseMeses > 60 && (
+                {totalMeses === 60 && baseMeses > 60 && (
                   <p className="flex justify-between text-yellow-400">
                     <span>Pena máxima aplicada</span>
                     <span>60 meses</span>
